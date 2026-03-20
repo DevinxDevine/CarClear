@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CarClear — Complete Car Buying Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07080f;--surface:#0f1018;--surface2:#161720;--surface3:#1e1f2c;
+  --border:#252636;--border2:#2e2f42;
+  --accent:#00e5a0;--adim:rgba(0,229,160,0.11);--aglow:rgba(0,229,160,0.22);
+  --yellow:#ffd166;--ydim:rgba(255,209,102,0.1);
+  --red:#ff4d6d;--rdim:rgba(255,77,109,0.1);
+  --orange:#ff6b35;--odim:rgba(255,107,53,0.1);
+  --blue:#4ea8de;--bdim:rgba(78,168,222,0.1);
+  --purple:#c77dff;--pdim:rgba(199,125,255,0.1);
+  --text:#e2e3f0;--text2:#9899b0;--text3:#5a5b70;
+  --r:14px;--rs:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;font-size:14px;line-height:1.5;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,160,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,.025) 1px,transparent 1px);background-size:44px 44px;pointer-events:none;z-index:0;}
+.amb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;}
+.amb1{width:700px;height:700px;background:radial-gradient(circle,rgba(0,229,160,.06),transparent 65%);top:-250px;left:-250px;}
+.amb2{width:500px;height:500px;background:radial-gradient(circle,rgba(255,107,53,.05),transparent 65%);bottom:-150px;right:-150px;}
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 24px;}
+
+/* HEADER */
+header{padding:28px 0 36px;border-bottom:1px solid var(--border);margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;letter-spacing:-1px;}
+.logo em{color:var(--accent);font-style:normal;}
+.logo-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:.12em;text-transform:uppercase;margin-top:4px;}
+.hbadge{display:flex;align-items:center;gap:8px;padding:7px 16px;background:var(--adim);border:1px solid rgba(0,229,160,.2);border-radius:30px;font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;}
+.hbadge::before{content:'●';font-size:8px;animation:blink 2s ease infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* BEST TIME TO BUY BANNER */
+#timeBanner{padding:10px 18px;border-radius:var(--rs);margin-bottom:20px;font-size:12px;font-family:'DM Mono',monospace;line-height:1.6;display:flex;align-items:center;gap:10px;}
+#timeBanner.good{background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.25);color:var(--text2);}
+#timeBanner.great{background:rgba(0,229,160,.12);border:1px solid rgba(0,229,160,.4);color:var(--accent);}
+#timeBanner.holiday{background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.3);color:var(--yellow);}
+#timeBanner.neutral{background:var(--surface);border:1px solid var(--border);color:var(--text3);}
+
+/* SECTION LABEL */
+.slabel{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.slabel::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent);}
+.snum{font-size:9px;opacity:.6;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;}
+.card-title{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.ctico{width:30px;height:30px;border-radius:7px;background:var(--adim);border:1px solid rgba(0,229,160,.2);display:flex;align-items:center;justify-content:center;font-size:13px;}
+
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+@media(max-width:900px){.g2{grid-template-columns:1fr;}.g4{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.g3{grid-template-columns:1fr 1fr;}.g4{grid-template-columns:1fr 1fr;}}
+
+/* FIELDS */
+.field{margin-bottom:13px;}
+label,.fl{display:block;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+input[type=number],input[type=text],select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-family:'DM Mono',monospace;font-size:13px;padding:9px 13px;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none;-webkit-appearance:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--adim);}
+input::placeholder,textarea::placeholder{color:var(--text3);}
+.ip{position:relative;}
+.ip .px{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-family:'DM Mono',monospace;font-size:12px;pointer-events:none;}
+.ip input{padding-left:22px;}
+.ip .sx{position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-family:'DM Mono',monospace;font-size:12px;pointer-events:none;}
+.fhint{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:4px;line-height:1.5;}
+hr.div{border:none;border-top:1px solid var(--border);margin:13px 0;}
+
+/* TAGS */
+.tag{padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace;font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;}
+.tag.req{background:rgba(255,209,102,.12);color:var(--yellow);border:1px solid rgba(255,209,102,.25);}
+.tag.profit{background:var(--rdim);color:var(--red);border:1px solid rgba(255,77,109,.28);}
+.tag.neg{background:var(--adim);color:var(--accent);border:1px solid rgba(0,229,160,.25);}
+.tag.savings{background:rgba(0,229,160,.15);color:var(--accent);border:1px solid rgba(0,229,160,.3);}
+.tag.rolled{background:var(--odim);color:var(--orange);border:1px solid rgba(255,107,53,.28);}
+.tag.info{background:var(--bdim);color:var(--blue);border:1px solid rgba(78,168,222,.28);}
+.tag.purple{background:var(--pdim);color:var(--purple);border:1px solid rgba(199,125,255,.28);}
+
+/* BUTTONS */
+.btn{padding:10px 18px;border:none;border-radius:var(--rs);font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;}
+.btn-accent{background:var(--accent);color:#000;}
+.btn-accent:hover{background:#00ffb3;box-shadow:0 6px 20px rgba(0,229,160,.35);}
+.btn-ghost{background:var(--surface2);color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+.btn-yellow{background:var(--ydim);color:var(--yellow);border:1px solid rgba(255,209,102,.3);}
+.btn-yellow:hover{background:rgba(255,209,102,.2);}
+.btn-red{background:var(--rdim);color:var(--red);border:1px solid rgba(255,77,109,.3);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* CALC BUTTON */
+.btn-calc{width:100%;padding:15px;background:var(--accent);color:#000;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;cursor:pointer;transition:all .2s;margin-top:14px;position:relative;overflow:hidden;}
+.btn-calc::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);transform:translateX(-100%);transition:transform .4s;}
+.btn-calc:hover{background:#00ffb3;box-shadow:0 8px 28px rgba(0,229,160,.4);}
+.btn-calc:hover::before{transform:translateX(100%);}
+
+/* NOTICE */
+.notice{border-radius:var(--rs);padding:9px 13px;font-size:11px;font-family:'DM Mono',monospace;line-height:1.6;margin-top:8px;display:none;}
+.notice.vis{display:block;}
+.notice.green{background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);}
+.notice.orange{background:var(--odim);border:1px solid rgba(255,107,53,.22);}
+.notice.yellow{background:var(--ydim);border:1px solid rgba(255,209,102,.25);}
+.notice.red{background:var(--rdim);border:1px solid rgba(255,77,109,.25);}
+
+/* SPINNER */
+.spinner{width:13px;height:13px;flex-shrink:0;border:2px solid rgba(0,229,160,.2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* URL CARD */
+.url-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--r);padding:22px 26px;margin-bottom:22px;position:relative;overflow:hidden;}
+.url-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),rgba(0,229,160,.1),transparent);}
+.url-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+.ai-badge{font-family:'DM Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.1em;background:var(--accent);color:#000;padding:2px 9px;border-radius:20px;}
+.url-desc{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:14px;max-width:800px;}
+.url-row{display:flex;gap:8px;}
+.url-inp{flex:1;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:11px 14px;outline:none;transition:border-color .2s;}
+.url-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--adim);}
+.url-inp::placeholder{color:var(--text3);}
+.fbar{margin-top:10px;font-size:11px;font-family:'DM Mono',monospace;display:none;align-items:center;gap:9px;}
+.fbar.vis{display:flex;}.fbar.loading{color:var(--accent);}.fbar.ok{color:#06d6a0;}.fbar.fail{color:var(--red);}
+
+/* EXTRACTED CHIPS */
+.ebox{margin-top:14px;background:var(--surface2);border:1px solid rgba(0,229,160,.2);border-radius:var(--rs);padding:14px 18px;display:none;}
+.ebox.vis{display:block;}
+.etitle{font-size:10px;color:var(--accent);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.echips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.echip{background:var(--surface);border:1px solid var(--border2);border-radius:6px;padding:6px 11px;}
+.eclabel{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:2px;}
+.ecval{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;}
+
+/* VIN CROSS-REF */
+.vin-panel{margin-top:16px;display:none;}
+.vin-panel.vis{display:block;}
+.vin-panel-title{font-size:11px;color:var(--blue);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.vin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:12px;}
+.vin-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;}
+.vin-card.loading{border-color:var(--border);}
+.vin-card.found{border-color:rgba(0,229,160,.3);}
+.vin-card.notfound{border-color:var(--border);opacity:.65;}
+.vin-card.above{border-color:rgba(255,77,109,.3);}
+.vc-site{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.vc-price{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:3px;}
+.vc-badge{font-size:9px;font-family:'DM Mono',monospace;padding:2px 7px;border-radius:10px;}
+.vc-badge.below{background:rgba(0,229,160,.15);color:var(--accent);}
+.vc-badge.at{background:var(--ydim);color:var(--yellow);}
+.vc-badge.above{background:var(--rdim);color:var(--red);}
+.vc-badge.na{background:var(--surface2);color:var(--text3);}
+.vc-link{font-size:10px;color:var(--blue);text-decoration:none;font-family:'DM Mono',monospace;display:inline-block;margin-top:4px;}
+.vc-link:hover{text-decoration:underline;}
+.market-warning{padding:10px 14px;border-radius:var(--rs);font-size:12px;font-family:'DM Mono',monospace;line-height:1.6;margin-top:4px;}
+
+/* DEALER REP */
+.dealer-rep{margin-top:12px;padding:12px 16px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);}
+.dr-title{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.dr-stars{font-size:18px;margin-bottom:4px;}
+.dr-name{font-weight:600;font-size:14px;margin-bottom:2px;}
+.dr-meta{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;}
+.dr-flags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+
+/* ZIP CARD */
+.zip-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;margin-bottom:18px;}
+.zip-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;}
+.zip-row .field{margin-bottom:0;flex:0 0 165px;}
+.tax-box{margin-top:14px;padding:14px 16px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);display:none;}
+.tax-box.vis{display:block;}
+.tax-box-title{font-size:10px;color:var(--accent);font-family:'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;}
+.tax-loc{font-size:10px;color:var(--text2);font-family:'DM Mono',monospace;margin-bottom:10px;}
+.tax-items{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px;}
+.tax-item{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 12px;min-width:115px;}
+.tax-item-name{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;}
+.tax-item-rate{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;}
+.tax-total-row{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--border);font-family:'Syne',sans-serif;font-weight:700;font-size:14px;}
+.tax-total-row span:last-child{color:var(--accent);}
+.trade-credit-box{margin-top:8px;padding:9px 13px;border-radius:6px;font-size:11px;font-family:'DM Mono',monospace;line-height:1.6;}
+.trade-credit-box.yes{background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);}
+.trade-credit-box.no{background:var(--odim);border:1px solid rgba(255,107,53,.2);}
+
+/* REBATE CHECKBOXES */
+.rebate-checks{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
+.rebate-check-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:border-color .15s;}
+.rebate-check-row:hover{border-color:var(--accent);}
+.rebate-check-row.checked{border-color:rgba(0,229,160,.4);background:rgba(0,229,160,.04);}
+.rebate-check-row input[type=checkbox]{width:16px;height:16px;flex-shrink:0;margin-top:1px;accent-color:var(--accent);cursor:pointer;}
+.rcr-body{flex:1;}
+.rcr-name{font-size:13px;font-weight:500;margin-bottom:2px;}
+.rcr-amt{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--accent);flex-shrink:0;}
+.rcr-qualify{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;line-height:1.5;}
+.rcr-stack{font-size:9px;margin-top:3px;}
+
+/* TOGGLES */
+.tgroup{display:flex;flex-direction:column;gap:8px;}
+.trow{display:flex;align-items:flex-start;gap:11px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);}
+.tswitch{position:relative;width:36px;height:20px;flex-shrink:0;margin-top:1px;}
+.tswitch input{opacity:0;width:0;height:0;}
+.ttrack{position:absolute;inset:0;background:var(--surface2);border:1px solid var(--border2);border-radius:10px;cursor:pointer;transition:.2s;}
+.ttrack::before{content:'';position:absolute;width:12px;height:12px;border-radius:50%;background:var(--text3);left:3px;top:3px;transition:.2s;}
+.tswitch input:checked+.ttrack{background:var(--adim);border-color:var(--accent);}
+.tswitch input:checked+.ttrack::before{transform:translateX(16px);background:var(--accent);}
+.ttext{font-size:12px;color:var(--text2);flex:1;line-height:1.4;}
+.ttext small{font-size:10px;color:var(--red);display:block;margin-top:2px;font-family:'DM Mono',monospace;}
+.tamt{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);flex-shrink:0;margin-top:2px;}
+
+/* REBATE LIST (manual) */
+.rlist{display:flex;flex-direction:column;gap:7px;margin-bottom:9px;}
+.rrow{display:flex;gap:7px;align-items:center;}
+.rrow input[type=text]{flex:1;font-size:12px;}
+.ramt-w{width:110px;flex-shrink:0;}
+.rdel{width:27px;height:27px;flex-shrink:0;background:var(--rdim);border:1px solid rgba(255,77,109,.2);color:var(--red);border-radius:6px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.rdel:hover{background:rgba(255,77,109,.2);}
+.btn-add{width:100%;padding:8px;background:transparent;border:1px dashed var(--border2);color:var(--text3);border-radius:var(--rs);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-add:hover{border-color:var(--accent);color:var(--accent);background:var(--adim);}
+
+/* CREDIT SLIDER */
+.strack{height:6px;position:relative;border-radius:3px;}
+.strack-bg{position:absolute;inset:0;border-radius:3px;background:linear-gradient(90deg,var(--red),var(--yellow),var(--accent));opacity:.25;}
+.sfill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--red),var(--yellow),var(--accent));border-radius:3px;transition:width .1s;}
+.sknob{position:absolute;top:50%;transform:translate(-50%,-50%);width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-shadow:0 0 14px var(--aglow);pointer-events:none;transition:left .05s;}
+input[type=range]{position:absolute;width:100%;top:-5px;left:0;height:16px;opacity:0;cursor:pointer;margin:0;padding:0;border:none;background:transparent;z-index:2;}
+input[type=range]:focus{box-shadow:none;}
+.slabels{display:flex;justify-content:space-between;margin-top:7px;}
+.slabels span{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;text-align:center;}
+
+/* TERM PILLS */
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;}
+.pill{padding:6px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;color:var(--text3);transition:all .15s;}
+.pill:hover{border-color:var(--accent);color:var(--text);}
+.pill.on{background:var(--adim);border-color:var(--accent);color:var(--accent);}
+
+/* PAYMENT GRID */
+.payment-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;}
+.pay-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:12px;}
+@media(max-width:900px){.pay-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:500px){.pay-grid{grid-template-columns:repeat(2,1fr);}}
+.pcard{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:13px 9px;text-align:center;position:relative;transition:all .2s;}
+.pcard.me{border-color:var(--accent)!important;background:linear-gradient(160deg,#0c1f18,var(--surface2));box-shadow:0 4px 20px rgba(0,229,160,.15);}
+.pcard.me::before{content:'YOUR TIER';position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-family:'DM Mono',monospace;font-size:8px;font-weight:600;letter-spacing:.1em;padding:2px 8px;border-radius:10px;white-space:nowrap;}
+.pcard.custom-card{border-color:rgba(255,209,102,.5)!important;background:linear-gradient(160deg,rgba(255,209,102,.06),var(--surface2));}
+.pcard.custom-card::before{content:'YOUR RATE';background:var(--yellow)!important;color:#000!important;}
+.pc-tier{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:1px;}
+.pc-range{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:7px;}
+.pc-apr{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:3px;}
+.pc-pmt{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--accent);}
+.pcard.custom-card .pc-pmt{color:var(--yellow);}
+.pc-label{font-size:9px;color:var(--text3);margin-bottom:2px;}
+.pc-int{font-size:9px;color:var(--text3);margin-top:7px;padding-top:7px;border-top:1px solid var(--border);font-family:'DM Mono',monospace;}
+.rate-compare{font-size:10px;font-family:'DM Mono',monospace;margin-top:8px;padding:8px 12px;border-radius:6px;line-height:1.5;}
+.rate-compare.good{background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.2);color:var(--accent);}
+.rate-compare.bad{background:var(--rdim);border:1px solid rgba(255,77,109,.2);color:var(--red);}
+.rate-compare.ok{background:var(--ydim);border:1px solid rgba(255,209,102,.2);color:var(--yellow);}
+
+/* OTD HERO */
+#results{opacity:0;transform:translateY(22px);transition:opacity .5s,transform .5s;pointer-events:none;margin-top:32px;}
+#results.show{opacity:1;transform:translateY(0);pointer-events:all;}
+.otd-hero{background:linear-gradient(135deg,#0c1f18,#091520);border:1px solid rgba(0,229,160,.25);border-radius:var(--r);padding:26px 30px;margin-bottom:18px;position:relative;overflow:hidden;}
+.otd-hero::after{content:'';position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,160,.1),transparent 70%);pointer-events:none;}
+.otd-eye{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+.otd-num{font-family:'Syne',sans-serif;font-weight:800;font-size:52px;letter-spacing:-3px;line-height:1;}
+.otd-stats{display:flex;gap:22px;margin-top:14px;flex-wrap:wrap;}
+.os-label{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px;}
+.os-val{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+.os-val.g{color:var(--accent);}.os-val.r{color:var(--red);}.os-val.y{color:var(--yellow);}
+
+/* BREAKDOWN */
+.bline{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);gap:10px;}
+.bline:last-child{border-bottom:none;}
+.bl-left{flex:1;}
+.bl-name{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:13px;}
+.bl-hint{font-size:10px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace;}
+.bl-amt{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;white-space:nowrap;flex-shrink:0;}
+.bl-amt.neg{color:var(--accent);}.bl-amt.red{color:var(--red);}.bl-amt.org{color:var(--orange);}
+.total-row{display:flex;justify-content:space-between;align-items:center;padding-top:12px;margin-top:4px;border-top:1px solid var(--border2);font-family:'Syne',sans-serif;font-weight:700;font-size:17px;}
+
+/* UNLISTED FEES */
+.unlisted-box{background:var(--ydim);border:1px solid rgba(255,209,102,.2);border-radius:var(--rs);padding:14px 18px;margin-top:14px;}
+.unlisted-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.unlisted-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:7px;}
+.ui-item{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 11px;}
+.ui-name{font-size:12px;font-weight:500;margin-bottom:2px;}
+.ui-range{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);}
+
+/* TCO */
+.tco-section{margin-top:18px;}
+.tco-toggle{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:background .15s;font-weight:600;font-size:13px;}
+.tco-toggle:hover{background:var(--surface2);}
+.tco-arrow{margin-left:auto;color:var(--text3);transition:transform .2s;}
+.tco-toggle.open .tco-arrow{transform:rotate(180deg);}
+.tco-body{display:none;background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--rs) var(--rs);padding:18px;}
+.tco-toggle.open+.tco-body{display:block;}
+.tco-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:14px;}
+.tco-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);padding:12px;}
+.tco-item-label{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;}
+.tco-item-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;}
+.tco-total{background:linear-gradient(135deg,#1a0f0a,var(--surface2));border:1px solid rgba(255,107,53,.3);border-radius:var(--rs);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;}
+.tco-total-label{font-size:12px;color:var(--text2);}
+.tco-total-val{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:var(--orange);}
+
+/* DEALER VISIT / COMMUNITY */
+.visit-section{margin-top:24px;}
+.visit-btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+.visit-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;display:none;}
+.visit-panel.vis{display:block;}
+.tactic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin:14px 0;}
+.tactic-row{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;}
+.tactic-row input[type=checkbox]{width:16px;height:16px;flex-shrink:0;margin-top:2px;accent-color:var(--accent);cursor:pointer;}
+.tactic-row span{font-size:12px;line-height:1.4;}
+.share-box{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);line-height:1.7;white-space:pre-wrap;margin:12px 0;}
+
+/* COMMUNITY BOARD */
+.community-section{margin-top:24px;}
+.community-feed{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+.community-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;}
+.cc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px;}
+.cc-dealer{font-weight:600;font-size:13px;}
+.cc-meta{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
+.cc-tactics{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+.cc-empty{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;padding:16px;text-align:center;}
+
+/* ACCORDION */
+.accordion{border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.acc-item{border-bottom:1px solid var(--border);}
+.acc-item:last-child{border-bottom:none;}
+.acc-hdr{display:flex;justify-content:space-between;align-items:center;padding:13px 20px;cursor:pointer;background:var(--surface);transition:background .15s;gap:10px;}
+.acc-hdr:hover{background:var(--surface2);}
+.acc-tw{flex:1;}
+.acc-title{font-weight:600;font-size:14px;margin-bottom:1px;}
+.acc-range{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);}
+.acc-tags{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap;}
+.acc-arrow{color:var(--text3);font-size:13px;transition:transform .2s;flex-shrink:0;}
+.acc-item.open .acc-arrow{transform:rotate(180deg);}
+.acc-body{display:none;padding:4px 20px 16px;background:var(--surface);}
+.acc-item.open .acc-body{display:block;}
+.acc-desc{font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:10px;}
+.tipbox{background:var(--surface2);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:10px 14px;font-size:12px;color:var(--text);line-height:1.65;}
+.tipbox strong{color:var(--accent);}
+
+.disclaimer{margin-top:22px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rs);font-size:11px;color:var(--text3);line-height:1.7;}
+footer{margin-top:64px;padding:22px 0;border-top:1px solid var(--border);text-align:center;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.06em;}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.anim{animation:fadeUp .42s ease both;}
+.d1{animation-delay:.04s;}.d2{animation-delay:.1s;}.d3{animation-delay:.17s;}.d4{animation-delay:.24s;}.d5{animation-delay:.3s;}
+@keyframes pulse{0%,100%{box-shadow:none;}50%{box-shadow:0 0 0 3px rgba(0,229,160,.3);}}
+.just-filled{animation:pulse 1.2s ease;}
+</style>
+</head>
+<body>
+<div class="amb amb1"></div><div class="amb amb2"></div>
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div>
+    <div class="logo">Car<em>Clear</em></div>
+    <div class="logo-sub">// Complete Car Buying Intelligence Tool</div>
+  </div>
+  <div class="hbadge">All fees visible. No surprises.</div>
+</header>
+
+<!-- BEST TIME TO BUY -->
+<div id="timeBanner" class="neutral">📅 Checking market timing...</div>
+
+<!-- 01: URL AUTO-FILL -->
+<div class="slabel"><span class="snum">01</span> Auto-Fill from Dealer Listing</div>
+<div class="url-card">
+  <div class="url-title">Paste Dealer Vehicle URL <span class="ai-badge">AI-POWERED</span></div>
+  <div class="url-desc">Paste any vehicle listing URL. CarClear fetches the page HTML, extracts pricing and VIN, cross-references the VIN across Edmunds, CarGurus, Carfax, AutoTrader, and Cars.com for market price comparison, and checks dealer reputation. <strong style="color:var(--yellow);">Note:</strong> Some dealer sites load prices via JavaScript — if auto-fill misses the price, enter it manually below.</div>
+  <div class="url-row">
+    <input class="url-inp" type="text" id="dealerUrl" placeholder="https://www.dealership.com/inventory/2026-make-model-vin..."/>
+    <button class="btn btn-accent" id="fetchBtn" onclick="doFetch()">✦ Extract + Cross-Reference</button>
+  </div>
+  <div class="fbar" id="fbar"><div class="spinner" id="fspinner"></div><span id="fmsg"></span></div>
+  <div class="ebox" id="ebox">
+    <div class="etitle">✓ Extracted — review and apply</div>
+    <div class="echips" id="echips"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-accent" onclick="applyData()">Apply to Calculator →</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('vinPanel').classList.toggle('vis')">View Price Comparison ▾</button>
+    </div>
+  </div>
+  <!-- VIN CROSS-REF PANEL -->
+  <div class="vin-panel" id="vinPanel">
+    <div class="vin-panel-title">🔍 VIN Price Cross-Reference</div>
+    <div class="vin-grid" id="vinGrid"></div>
+    <div id="marketWarning"></div>
+    <div class="dealer-rep" id="dealerRep" style="display:none;">
+      <div class="dr-title">Dealer Reputation</div>
+      <div id="drContent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 02: ZIP CODE TAX -->
+<div class="slabel"><span class="snum">02</span> Tax Rate by ZIP Code</div>
+<div class="zip-card">
+  <div class="card-title"><span class="ctico">📍</span> ZIP Code Tax Lookup</div>
+  <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.7;">Get the exact combined state + county + city vehicle sales tax rate for your location. Also verifies trade-in tax credit eligibility for your state.</p>
+  <div class="zip-row">
+    <div class="field"><label>ZIP Code</label>
+      <input type="text" id="zipCode" placeholder="e.g. 33781" maxlength="5" style="letter-spacing:.12em;">
+    </div>
+    <button class="btn btn-ghost" id="zipBtn" onclick="doZip()"><span id="zipTxt">Look Up Tax Rate</span></button>
+  </div>
+  <div class="tax-box" id="taxBox">
+    <div class="tax-box-title">Combined Tax Rate Breakdown</div>
+    <div class="tax-loc" id="taxLoc"></div>
+    <div class="tax-items" id="taxItems"></div>
+    <div class="tax-total-row"><span>Combined Vehicle Sales Tax</span><span id="taxTotal">—</span></div>
+    <div class="trade-credit-box" id="tradeCreditBox"></div>
+  </div>
+</div>
+
+<!-- 03: VEHICLE PRICING -->
+<div class="slabel"><span class="snum">03</span> Vehicle Pricing &amp; Fees</div>
+<div class="g2" style="margin-bottom:18px;">
+  <div class="card">
+    <div class="card-title"><span class="ctico">🚗</span> Vehicle &amp; Pricing</div>
+    <div class="field"><label>Sale Price (Negotiated / Internet Price)</label>
+      <div class="ip"><span class="px">$</span><input type="number" id="salePrice" value="35000" min="0"></div>
+    </div>
+    <div class="field"><label>Dealer Market Adjustment / ADM</label>
+      <div class="ip"><span class="px">$</span><input type="number" id="dealerADM" value="0" min="0"></div>
+      <div class="fhint">Above MSRP markup — negotiate down or walk away</div>
+    </div>
+    <hr class="div">
+    <div class="fl" style="margin-bottom:8px;">Rebates &amp; Incentives <span style="font-size:10px;color:var(--text3);font-weight:400;font-family:'DM Mono',monospace;">— check only what you qualify for</span></div>
+    <div id="rebateChecks" class="rebate-checks"></div>
+    <div class="fl" style="margin-bottom:8px;margin-top:12px;">Manual Rebates</div>
+    <div class="rlist" id="rlist">
+      <div class="rrow">
+        <input type="text" placeholder="Rebate name" style="font-size:12px;">
+        <div class="ip ramt-w"><span class="px">$</span><input type="number" placeholder="0" min="0" value="0"></div>
+        <button class="rdel" onclick="removeRebate(this)">×</button>
+      </div>
+    </div>
+    <button class="btn-add" onclick="addRebate()">＋ Add Manual Rebate</button>
+    <hr class="div">
+    <div class="g2">
+      <div class="field"><label>Down Payment (cash)</label>
+        <div class="ip"><span class="px">$</span><input type="number" id="downPmt" value="3000" min="0"></div>
+      </div>
+      <div class="field"><label>Trade-In Value (ACV)</label>
+        <div class="ip"><span class="px">$</span><input type="number" id="tradeVal" value="0" min="0" oninput="updateTradeNote()"></div>
+      </div>
+    </div>
+    <div class="field"><label>Trade-In Payoff (amount still owed)</label>
+      <div class="ip"><span class="px">$</span><input type="number" id="tradeOwed" value="0" min="0" oninput="updateTradeNote()"></div>
+    </div>
+    <div class="notice" id="negNotice"><strong style="color:var(--orange);">⚠ Negative Equity:</strong> Payoff exceeds trade value by <strong id="negAmt"></strong> — this is <strong>rolled into your loan and added to your OTD total.</strong></div>
+    <div class="notice" id="taxCreditNotice"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="ctico">📋</span> Fees &amp; Taxes</div>
+    <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:11px 14px;margin-bottom:13px;">
+      <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:7px;text-transform:uppercase;letter-spacing:.08em;">Sales Tax Rate — <span id="taxSrcLabel" style="color:var(--accent);">Manual Entry</span></div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="ip" style="width:120px;">
+          <input type="number" id="taxRateInput" value="7.000" min="0" max="20" step=".001" style="font-size:12px;" oninput="onManualTax()">
+          <span class="sx">%</span>
+        </div>
+        <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">auto-filled by ZIP or enter manually</span>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="field"><label>Doc / Processing Fee</label>
+        <div class="ip"><span class="px">$</span><input type="number" id="docFee" value="999" min="0"></div>
+      </div>
+      <div class="field"><label>Tag / Registration</label>
+        <div class="ip"><span class="px">$</span><input type="number" id="tagFee" value="250" min="0"></div>
+        <div class="fhint">Weight-based in most states</div>
+      </div>
+      <div class="field"><label>Electronic Title</label>
+        <div class="ip"><span class="px">$</span><input type="number" id="eTitleFee" value="75" min="0"></div>
+        <div class="fhint">e-title state filing</div>
+      </div>
+    </div>
+    <div style="background:var(--bdim);border:1px solid rgba(78,168,222,.2);border-radius:6px;padding:9px 13px;font-size:10px;color:var(--text2);font-family:'DM Mono',monospace;line-height:1.6;margin-bottom:13px;">
+      ℹ️ <strong style="color:var(--blue);">Tag Fee:</strong> Based on vehicle weight/MSRP/model year by state.
+      <button onclick="lookupTagFee()" id="tagLookupBtn" style="margin-top:6px;display:block;padding:5px 11px;background:var(--bdim);border:1px solid rgba(78,168,222,.25);color:var(--blue);border-radius:6px;font-family:'DM Mono',monospace;font-size:10px;cursor:pointer;">Estimate by Vehicle Weight →</button>
+    </div>
+    <hr class="div">
+    <div class="fl" style="margin-bottom:9px;">Add-On Fees (toggle what applies)</div>
+    <div class="tgroup">
+      <div class="trow">
+        <label class="tswitch"><input type="checkbox" id="tProt" onchange="document.getElementById('protWrap').style.display=this.checked?'block':'none'"><span class="ttrack"></span></label>
+        <span class="ttext">Dealer Protection Package <small>Paint/fabric/interior — sometimes mandatory. Enter amount:</small>
+          <div class="ip" style="width:120px;margin-top:6px;display:none;" id="protWrap"><span class="px">$</span><input type="number" id="protAmt" value="895" min="0"></div>
+        </span>
+        <span class="tamt" id="protAmtDisp">+$895</span>
+      </div>
+      <div class="trow">
+        <label class="tswitch"><input type="checkbox" id="tInsp"><span class="ttrack"></span></label>
+        <span class="ttext">Dealer Prep / Inspection Fee <small>Factory holdback covers this — double-dipping</small></span>
+        <span class="tamt">+$399</span>
+      </div>
+      <div class="trow">
+        <label class="tswitch"><input type="checkbox" id="tNitro"><span class="ttrack"></span></label>
+        <span class="ttext">Nitrogen in Tires <small>Air is 78% nitrogen — marginal benefit</small></span>
+        <span class="tamt">+$249</span>
+      </div>
+      <div class="trow">
+        <label class="tswitch"><input type="checkbox" id="tVin"><span class="ttrack"></span></label>
+        <span class="ttext">VIN Etching <small>Unnecessary with modern comprehensive insurance</small></span>
+        <span class="tamt">+$199</span>
+      </div>
+      <div class="trow">
+        <label class="tswitch"><input type="checkbox" id="tGap"><span class="ttrack"></span></label>
+        <span class="ttext">GAP Insurance (dealer) <small>Buy from your insurer for 5× less</small></span>
+        <span class="tamt">+$695</span>
+      </div>
+      <div class="trow">
+        <label class="tswitch"><input type="checkbox" id="tWar" onchange="document.getElementById('warWrap').style.display=this.checked?'block':'none'"><span class="ttrack"></span></label>
+        <span class="ttext">Extended Warranty (F&amp;I) <small>Priced 2–5× wholesale — always negotiate</small>
+          <div class="ip" style="width:120px;margin-top:6px;display:none;" id="warWrap"><span class="px">$</span><input type="number" id="warAmt" value="2500" min="0"></div>
+        </span>
+        <span class="tamt">+$2,500</span>
+      </div>
+      <div class="trow">
+        <label class="tswitch"><input type="checkbox" id="tTire"><span class="ttrack"></span></label>
+        <span class="ttext">Tire &amp; Wheel / Road Hazard <small>Check if covered by tire manufacturer first</small></span>
+        <span class="tamt">+$349</span>
+      </div>
+      <div class="trow">
+        <label class="tswitch"><input type="checkbox" id="tKey"><span class="ttrack"></span></label>
+        <span class="ttext">Key Replacement / Theft <small>Standalone insurer policy costs far less</small></span>
+        <span class="tamt">+$299</span>
+      </div>
+    </div>
+    <div style="margin-top:11px;padding:11px 13px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);">
+      <div class="fl" style="margin-bottom:7px;">Other / Custom Fee</div>
+      <div style="display:flex;gap:7px;">
+        <input type="text" id="custFeeName" placeholder="Fee name" style="flex:1;font-size:12px;">
+        <div class="ip" style="width:105px;"><span class="px">$</span><input type="number" id="custFeeAmt" value="0" min="0"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 04: MONTHLY PAYMENT BY CREDIT TIER -->
+<div class="slabel"><span class="snum">04</span> Monthly Payment by Credit Tier</div>
+<div class="payment-section">
+  <div class="g2" style="margin-bottom:16px;">
+    <div>
+      <div class="fl" style="margin-bottom:10px;">Credit Score <span class="apr-src" id="aprSrc" style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;background:var(--surface2);border:1px solid var(--border2);border-radius:20px;font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);margin-left:8px;">National Avg</span></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div><span style="font-family:'Syne',sans-serif;font-weight:800;font-size:22px;" id="scoreNum">720</span><span style="font-family:'DM Mono',monospace;font-size:10px;padding:2px 9px;border-radius:20px;margin-left:6px;background:rgba(6,214,160,.15);color:#06d6a0;border:1px solid rgba(6,214,160,.3);" id="tierTag">V.Good</span></div>
+      </div>
+      <div class="strack" style="margin:0 0 4px;">
+        <div class="strack-bg"></div>
+        <div class="sfill" id="sfill" style="width:57%"></div>
+        <div class="sknob" id="sknob" style="left:57%"></div>
+        <input type="range" id="cslider" min="300" max="850" value="720" oninput="onSlider(this.value)">
+      </div>
+      <div class="slabels"><span>300<br>Poor</span><span>580<br>Fair</span><span>670<br>Good</span><span>740<br>V.Good</span><span>800+<br>Exc.</span></div>
+      <hr class="div" style="margin:14px 0;">
+      <div class="fl" style="margin-bottom:7px;">Loan Term</div>
+      <div class="pills" id="termPills">
+        <div class="pill" data-t="24">24 mo</div><div class="pill" data-t="36">36 mo</div>
+        <div class="pill on" data-t="48">48 mo</div><div class="pill" data-t="60">60 mo</div>
+        <div class="pill" data-t="72">72 mo</div><div class="pill" data-t="84">84 mo</div>
+      </div>
+    </div>
+    <div>
+      <div class="fl" style="margin-bottom:8px;">Your Rate Override</div>
+      <p style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px;">Enter the APR you were quoted by your bank, credit union, or dealer. A <strong style="color:var(--yellow);">"YOUR RATE"</strong> card appears at the end of the tier grid with your personalized payment — no state averages are changed.</p>
+      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);padding:13px 15px;">
+        <div class="fl" style="margin-bottom:9px;color:var(--yellow);">⭐ Custom APR Override</div>
+        <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+          <label style="margin:0;white-space:nowrap;">Your Rate:</label>
+          <div class="ip" style="width:105px;"><input type="number" id="overrideRate" placeholder="e.g. 5.9" min="0" max="30" step=".1" oninput="onOverride()"><span class="sx">%</span></div>
+          <button class="btn btn-ghost" id="clrBtn" onclick="clearOverride()" style="display:none;font-size:11px;padding:7px 11px;">✕ Clear</button>
+        </div>
+        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;line-height:1.5;margin-top:8px;" id="rateNote">Move the slider — the state-avg APR for your tier will appear here as a starting point.</div>
+      </div>
+      <div style="margin-top:10px;padding:10px 13px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--rs);font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;line-height:1.6;">
+        The 5 tier cards show <strong style="color:var(--text2);">read-only state-average APRs</strong> — these are reference rates that do not change based on your override. Your custom rate appears as a 6th card.
+      </div>
+    </div>
+  </div>
+  <div class="pay-grid" id="payGrid">
+    <div class="pcard" style="grid-column:span 6;text-align:center;padding:20px;color:var(--text3);font-family:'DM Mono',monospace;font-size:12px;">Calculate OTD price first to see payment estimates</div>
+  </div>
+  <div id="rateCompare" style="display:none;" class="rate-compare ok"></div>
+  <button class="btn-calc" onclick="calculate()">Calculate Out-the-Door →</button>
+</div>
+
+<!-- RESULTS -->
+<div id="results">
+  <div class="slabel anim d1"><span class="snum">05</span> Your Out-the-Door Numbers</div>
+  <div class="otd-hero anim d2">
+    <div class="otd-eye">Total Out-the-Door Price</div>
+    <div class="otd-num" id="otdNum">$0</div>
+    <div class="otd-stats" id="otdStats"></div>
+  </div>
+  <div class="g2 anim d3" style="margin-bottom:18px;">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:13px;"><span class="ctico">🧾</span> Complete Price Breakdown</div>
+      <div id="blines"></div>
+      <div class="total-row"><span>Out-the-Door Total</span><span id="otdLine">$0</span></div>
+      <div class="unlisted-box" style="margin-top:14px;">
+        <div class="unlisted-title">⚠ Additional Fees That May Appear at Signing</div>
+        <div class="unlisted-grid" id="unlistedGrid"></div>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:14px;">
+        <div class="card-title" style="margin-bottom:10px;"><span class="ctico">💳</span> Payment by Credit Tier</div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:10px;line-height:1.6;" id="tierSubline"></div>
+        <div class="pay-grid" id="payGridResult"></div>
+        <div id="rateCompareResult" style="display:none;" class="rate-compare ok" style="margin-top:8px;"></div>
+        <div style="font-size:10px;color:var(--text3);margin-top:10px;font-family:'DM Mono',monospace;line-height:1.6;" id="aprFoot"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TCO -->
+  <div class="tco-section anim d4">
+    <div class="slabel"><span class="snum">06</span> 5-Year Total Cost of Ownership</div>
+    <div class="tco-toggle" id="tcoToggle" onclick="toggleTCO()">
+      <span class="ctico">🔢</span>
+      <span>Expand 5-Year Cost Estimate</span>
+      <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-left:8px;" id="tcoPreview"></span>
+      <span class="tco-arrow">▾</span>
+    </div>
+    <div class="tco-body" id="tcoBody">
+      <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:16px;">
+        <div class="field" style="margin:0;flex:0 0 160px;">
+          <label>Annual Miles Driven</label>
+          <input type="number" id="annualMiles" value="12000" min="1000" max="50000" step="1000" oninput="calcTCO()">
+        </div>
+        <div class="field" style="margin:0;flex:0 0 140px;">
+          <label>Fuel Type</label>
+          <select id="fuelType" onchange="calcTCO()">
+            <option value="gas">Gasoline</option>
+            <option value="hybrid">Hybrid</option>
+            <option value="phev">Plug-in Hybrid</option>
+            <option value="ev">Full Electric</option>
+            <option value="diesel">Diesel</option>
+          </select>
+        </div>
+        <div class="field" style="margin:0;flex:0 0 140px;" id="mpgField">
+          <label>MPG (estimated)</label>
+          <input type="number" id="mpgVal" value="30" min="5" max="150" oninput="calcTCO()">
+        </div>
+      </div>
+      <div class="tco-grid" id="tcoGrid"></div>
+      <div class="tco-total"><div><div class="tco-total-label">Estimated 5-Year Total Cost of Ownership</div><div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">Includes purchase, insurance, fuel, maintenance, depreciation</div></div><div class="tco-total-val" id="tcoTotal">$0</div></div>
+    </div>
+  </div>
+
+  <!-- DEALER VISIT REPORT -->
+  <div class="visit-section anim d5">
+    <div class="slabel"><span class="snum">07</span> Dealer Visit Report</div>
+    <div class="visit-btn-row">
+      <button class="btn btn-yellow" onclick="openVisitPanel()">📝 I Visited This Dealership — Log My Experience</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('communitySection').scrollIntoView({behavior:'smooth'})">👥 See Community Reports</button>
+    </div>
+    <div class="visit-panel" id="visitPanel">
+      <div class="card-title"><span class="ctico">📝</span> Dealer Visit Report</div>
+      <div class="g2" style="margin-bottom:14px;">
+        <div class="field"><label>Dealership Name</label><input type="text" id="visitDealer" placeholder="e.g. Crown Kia"></div>
+        <div class="field"><label>City / State</label><input type="text" id="visitCity" placeholder="e.g. Pinellas Park, FL"></div>
+      </div>
+      <div class="fl" style="margin-bottom:10px;">What did the dealer do? (check all that apply)</div>
+      <div class="tactic-grid" id="tacticGrid"></div>
+      <div class="field"><label>Additional Notes (optional)</label>
+        <textarea id="visitNotes" placeholder="Anything else you want other buyers to know..." rows="3" style="resize:vertical;"></textarea>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+        <button class="btn btn-accent" onclick="submitVisit()">Submit Report</button>
+        <button class="btn btn-ghost" onclick="generateShare()">📤 Generate Shareable Summary</button>
+      </div>
+      <div class="share-box" id="shareBox" style="display:none;"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;" id="shareLinks" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div class="disclaimer">
+    ⚠️ <strong>Disclaimer:</strong> CarClear is an educational tool. Tax rates and fees vary by state, county, and dealership. ZIP tax rates are AI-estimated — verify with your state DMV. State-average APRs are reference estimates. VIN cross-reference prices are AI-gathered and may not reflect real-time listings. Trade-in tax credit rules vary by state. Always request an itemized buyer's order before signing.
+  </div>
+</div>
+
+<!-- 08: COMMUNITY BOARD -->
+<div class="community-section" id="communitySection" style="margin-top:32px;">
+  <div class="slabel"><span class="snum">08</span> Community Dealer Reports</div>
+  <div class="card">
+    <div class="card-title"><span class="ctico">👥</span> What Other Buyers Experienced</div>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:14px;line-height:1.7;">Reports submitted by CarClear users after visiting dealerships. This data is stored locally in your browser and shared across sessions on this device.</p>
+    <div class="community-feed" id="communityFeed"></div>
+  </div>
+</div>
+
+<!-- 09: FEE GUIDE -->
+<div style="margin-top:32px;">
+  <div class="slabel"><span class="snum">09</span> Complete Hidden &amp; Junk Fee Guide</div>
+  <div class="accordion" id="feeGuide"></div>
+</div>
+
+<footer>CarClear — Free educational tool for car buyers. Not affiliated with any dealership, lender, or manufacturer.</footer>
+</div>
+<script>
+// ─── STATE APR DATA ──────────────────────────────────────────────────────────
+const NAT=[
+  {n:'Poor',      rng:'300–579',clr:'#ff4d6d',rates:{24:16.5,36:17.2,48:17.9,60:18.8,72:19.9,84:21.2}},
+  {n:'Fair',      rng:'580–669',clr:'#ff8c42',rates:{24:12.1,36:12.9,48:13.6,60:14.8,72:16.0,84:17.4}},
+  {n:'Good',      rng:'670–739',clr:'#ffd166',rates:{24:8.1, 36:8.8, 48:9.5, 60:10.4,72:11.5,84:12.8}},
+  {n:'V.Good',    rng:'740–799',clr:'#06d6a0',rates:{24:6.0, 36:6.5, 48:7.0, 60:7.8, 72:8.7, 84:9.9}},
+  {n:'Excellent', rng:'800–850',clr:'#00e5a0',rates:{24:4.5, 36:5.1, 48:5.8, 60:6.5, 72:7.4, 84:8.6}},
+];
+const SDELTA={FL:.15,TX:.2,CA:-.3,NY:.15,GA:.25,OH:-.1,PA:.05,NC:-.05,TN:.3,AZ:.2,WA:-.15,CO:-.2,OR:-.25,NH:-.1,MA:-.3,MI:.35,IL:.1,VA:-.1,NV:.25,NJ:.1,MN:-.15,WI:-.1,KY:.3,MO:.15,IN:.2,AL:.35,MS:.4,LA:.3,SC:.2,OK:.25,AR:.3,KS:.1,IA:-.05,UT:-.1,NM:.2,NE:.05,SD:.1,ND:0,WY:.05,ID:.05,AK:.15,HI:-.1,DE:-.1,MD:-.05,CT:-.2,RI:.05,VT:-.15,ME:-.05,WV:.3,DC:-.3,MT:.05};
+
+// ─── STATE ─────────────────────────────────────────────────────────────────
+let stCode=null,taxRate=0.07,taxFromZip=false,tradeCredit=true,tradeCreditNote='',stateAPRNote='',mfrFinanceName='Manufacturer Financing';
+let extractedData=null,selTerm=48,overrideAPR=null,currentVehicleName='';
+let detectedRebates=[];
+let tcoData={};
+
+function getAPRs(){
+  const d=stCode?(SDELTA[stCode]||0):0;
+  return NAT.map(t=>{const a={};for(const m in t.rates)a[m]=Math.max(1.9,+(t.rates[m]+d).toFixed(2));return{...t,adj:a};});
+}
+function getTierIdx(s){return s<580?0:s<670?1:s<740?2:s<800?3:4;}
+const fmt=n=>'$'+Math.round(Math.abs(n)).toLocaleString();
+const fmtD=n=>'$'+(+n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',');
+function pmtCalc(P,r,m){if(P<=0)return 0;if(r===0)return P/m;const x=r/100/12;return P*x*Math.pow(1+x,m)/(Math.pow(1+x,m)-1);}
+
+// ─── BEST TIME TO BUY ────────────────────────────────────────────────────────
+function checkTiming(){
+  const now=new Date(),m=now.getMonth()+1,d=now.getDate(),dom=new Date(now.getFullYear(),m,0).getDate();
+  const b=document.getElementById('timeBanner');
+  const eom=d>=dom-2,eoq=[3,6,9,12].includes(m)&&eom;
+  const holidays=[[1,1],[5,26],[7,4],[9,1],[11,28],[12,26]];
+  const isHoliday=holidays.some(([hm,hd])=>m===hm&&Math.abs(d-hd)<=2);
+  const modelYear=m>=8&&m<=10;
+  if(eoq){b.className='neutral';b.style.cssText='padding:10px 18px;border-radius:8px;margin-bottom:20px;font-size:12px;font-family:DM Mono,monospace;line-height:1.6;display:flex;align-items:center;gap:10px;background:rgba(0,229,160,.12);border:1px solid rgba(0,229,160,.4);color:var(--accent)';b.innerHTML='🏆 <strong>End of Quarter</strong> — One of the best times to buy all year. Dealers are aggressively pushing to hit quarterly targets. Come prepared to walk away and you\'ll have maximum leverage.';}
+  else if(eom){b.style.cssText='padding:10px 18px;border-radius:8px;margin-bottom:20px;font-size:12px;font-family:DM Mono,monospace;line-height:1.6;display:flex;align-items:center;gap:10px;background:rgba(0,229,160,.08);border:1px solid rgba(0,229,160,.25);color:var(--text2)';b.innerHTML='📅 <strong style="color:var(--accent)">End of Month</strong> — Dealers are pushing to hit monthly quotas. Good time to negotiate — especially on vehicles that have been sitting on the lot.';}
+  else if(isHoliday){b.style.cssText='padding:10px 18px;border-radius:8px;margin-bottom:20px;font-size:12px;font-family:DM Mono,monospace;line-height:1.6;display:flex;align-items:center;gap:10px;background:rgba(255,209,102,.08);border:1px solid rgba(255,209,102,.3);color:var(--yellow)';b.innerHTML='🎉 <strong>Holiday Sales Weekend</strong> — High foot traffic but real deals do exist. Dealers are motivated. Come with pre-approved financing from your bank or credit union for maximum leverage.';}
+  else if(modelYear){b.style.cssText='padding:10px 18px;border-radius:8px;margin-bottom:20px;font-size:12px;font-family:DM Mono,monospace;line-height:1.6;display:flex;align-items:center;gap:10px;background:rgba(78,168,222,.08);border:1px solid rgba(78,168,222,.25);color:var(--blue)';b.innerHTML='🔄 <strong style="color:var(--blue)">Model Year Changeover</strong> — New model year arriving soon. Current year vehicles may see deeper discounts as dealers make room for incoming inventory.';}
+  else{b.style.cssText='padding:10px 18px;border-radius:8px;margin-bottom:20px;font-size:12px;font-family:DM Mono,monospace;line-height:1.6;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);color:var(--text3)';b.innerHTML=`📅 Today is ${now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}. No special buying conditions detected — but end of month is in ${dom-d} days.`;}
+}
+checkTiming();
+
+// ─── SLIDER ─────────────────────────────────────────────────────────────────
+function onSlider(v){
+  v=+v;const pct=((v-300)/550*100);
+  document.getElementById('sfill').style.width=pct+'%';
+  document.getElementById('sknob').style.left=pct+'%';
+  document.getElementById('scoreNum').textContent=v;
+  const t=NAT[getTierIdx(v)];
+  const tag=document.getElementById('tierTag');
+  tag.textContent=t.n;tag.style.cssText=`background:${t.clr}20;color:${t.clr};border:1px solid ${t.clr}40;padding:2px 9px;border-radius:20px;font-family:'DM Mono',monospace;font-size:10px;`;
+  if(overrideAPR===null){const aprs=getAPRs();const apr=aprs[getTierIdx(v)].adj[selTerm];document.getElementById('rateNote').textContent=`State-avg for ${t.n} (${selTerm} mo): ${apr}% — enter a rate above to override.`;}
+}
+onSlider(720);
+
+// ─── TERM PILLS ─────────────────────────────────────────────────────────────
+document.getElementById('termPills').addEventListener('click',e=>{
+  const p=e.target.closest('.pill');if(!p)return;
+  document.querySelectorAll('#termPills .pill').forEach(x=>x.classList.remove('on'));
+  p.classList.add('on');selTerm=+p.dataset.t;if(overrideAPR===null)onSlider(document.getElementById('cslider').value);
+});
+
+// ─── RATE OVERRIDE ──────────────────────────────────────────────────────────
+function onOverride(){const v=document.getElementById('overrideRate').value;overrideAPR=v!==''?+v:null;document.getElementById('clrBtn').style.display=overrideAPR!==null?'inline-flex':'none';if(overrideAPR!==null)document.getElementById('rateNote').innerHTML=`<strong style="color:var(--yellow);">Active: ${overrideAPR}% APR</strong> — YOUR RATE card will appear in the payment grid.`;}
+function clearOverride(){document.getElementById('overrideRate').value='';overrideAPR=null;document.getElementById('clrBtn').style.display='none';onSlider(document.getElementById('cslider').value);}
+
+// ─── MANUAL TAX ─────────────────────────────────────────────────────────────
+function onManualTax(){taxRate=+document.getElementById('taxRateInput').value/100;taxFromZip=false;document.getElementById('taxSrcLabel').textContent='Manual Entry';document.getElementById('taxSrcLabel').style.color='var(--text3)';updateTradeNote();}
+
+// ─── TRADE NOTE ─────────────────────────────────────────────────────────────
+function updateTradeNote(){
+  const tv=+document.getElementById('tradeVal').value||0,to=+document.getElementById('tradeOwed').value||0;
+  const eq=tv-to;
+  const neg=document.getElementById('negNotice');
+  if(eq<0){neg.className='notice vis orange';document.getElementById('negAmt').textContent=fmt(Math.abs(eq));}else{neg.className='notice';}
+  const tcn=document.getElementById('taxCreditNotice');
+  if(tv>0&&taxRate>0){
+    if(tradeCredit){const sav=tv*taxRate;tcn.innerHTML=`<strong>💰 Trade-In Tax Credit:</strong> ${tradeCreditNote||'Tax on difference only.'} You save <strong>${fmt(sav)}</strong> in sales tax.`;tcn.className='notice vis green';}
+    else{tcn.innerHTML=`<strong style="color:var(--orange);">ℹ No Trade-In Tax Credit:</strong> ${tradeCreditNote||'Full price is taxed.'}`;tcn.className='notice vis orange';}
+  }else{tcn.className='notice';}
+}
+
+// ─── ZIP LOOKUP ─────────────────────────────────────────────────────────────
+async function doZip(){
+  const zip=document.getElementById('zipCode').value.trim();
+  if(!/^\d{5}$/.test(zip)){alert('Enter a valid 5-digit ZIP code.');return;}
+  const btn=document.getElementById('zipBtn'),btxt=document.getElementById('zipTxt');
+  btn.disabled=true;btxt.textContent='Looking up...';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,system:'Respond with ONLY a valid JSON object. No markdown, no explanation.',messages:[{role:'user',content:`ZIP code ${zip} vehicle sales tax. Return ONLY JSON:
+{"zip":"${zip}","city":"City","county":"County","state":"State","stateCode":"XX","rates":[{"name":"State Tax","type":"state","rate":0.06},{"name":"County Tax","type":"county","rate":0.01},{"name":"City Tax","type":"city","rate":0.00}],"totalRate":0.07,"tradeInTaxCredit":true,"tradeInTaxCreditNote":"Buyers pay tax only on net price after trade.","stateAPRNote":"FL rates run slightly above national avg.","tagFeeNote":"FL registration is weight-based, typically $225–$400."}`}]})});
+    const d=await res.json();const td=extractJSON(allText(d));if(!td)throw new Error('zip parse failed');
+    taxRate=td.totalRate;taxFromZip=true;stCode=td.stateCode;tradeCredit=td.tradeInTaxCredit!==false;tradeCreditNote=td.tradeInTaxCreditNote||'';stateAPRNote=td.stateAPRNote||'';
+    document.getElementById('taxRateInput').value=(td.totalRate*100).toFixed(3);
+    document.getElementById('taxSrcLabel').textContent=`ZIP ${zip} — ${td.city}, ${td.stateCode}`;
+    document.getElementById('taxSrcLabel').style.color='var(--accent)';
+    document.getElementById('taxLoc').textContent=`📍 ${td.city}, ${td.county} County, ${td.state} (${td.stateCode})`;
+    document.getElementById('taxItems').innerHTML=td.rates.map(r=>`<div class="tax-item"><div class="tax-item-name">${r.name}</div><div class="tax-item-rate">${(r.rate*100).toFixed(3)}%</div></div>`).join('');
+    document.getElementById('taxTotal').textContent=(td.totalRate*100).toFixed(3)+'%';
+    const tcb=document.getElementById('tradeCreditBox');
+    tcb.className=tradeCredit?'trade-credit-box yes':'trade-credit-box no';
+    tcb.innerHTML=tradeCredit?`✅ <strong style="color:var(--accent)">Trade-In Tax Credit:</strong> ${td.tradeInTaxCreditNote}`:`❌ <strong style="color:var(--orange)">No Trade-In Tax Credit:</strong> ${td.tradeInTaxCreditNote||'Full price taxed.'}`;
+    document.getElementById('taxBox').classList.add('vis');
+    document.getElementById('aprSrc').textContent=`State APRs: ${td.stateCode}`;
+    document.getElementById('aprSrc').style.cssText='display:inline-flex;align-items:center;gap:5px;padding:2px 9px;background:var(--adim);border:1px solid rgba(0,229,160,.3);border-radius:20px;font-family:DM Mono,monospace;font-size:9px;color:var(--accent);margin-left:8px;';
+    if(td.tagFeeNote)document.getElementById('tagLookupBtn').textContent=td.tagFeeNote+' →';
+    updateTradeNote();
+  }catch(e){alert('Could not look up ZIP. Enter tax rate manually.');}
+  finally{btn.disabled=false;btxt.textContent='Look Up Tax Rate';}
+}
+
+// ─── TAG FEE LOOKUP ──────────────────────────────────────────────────────────
+async function lookupTagFee(){
+  const btn=document.getElementById('tagLookupBtn');btn.textContent='Looking up...';btn.disabled=true;
+  const stHint=stCode||'FL',price=+document.getElementById('salePrice').value||35000;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,system:'Respond with ONLY a valid JSON object. No markdown, no explanation.',messages:[{role:'user',content:`State ${stHint}, vehicle price $${price}. Registration/tag fee. Return ONLY JSON: {"stateCode":"FL","lightCarFee":225,"heavySUVFee":350,"largestFee":500,"recommended":275,"note":"brief"}`}]})});
+    const d=await res.json();const info=extractJSON(allText(d));if(!info)throw new Error('tag parse failed');
+    document.getElementById('tagFee').value=info.recommended;
+    btn.textContent=`✓ ${info.stateCode}: Car ~${fmt(info.lightCarFee)} | SUV ~${fmt(info.heavySUVFee)} | Truck ~${fmt(info.largestFee)}. Updated to ${fmt(info.recommended)}.`;
+  }catch(e){btn.textContent='Could not look up — enter manually';}
+  finally{btn.disabled=false;}
+}
+
+// ─── DETECT MANUFACTURER FINANCE NAME ────────────────────────────────────────
+function detectMfrFinance(vehicleName){
+  const n=(vehicleName||'').toLowerCase();
+  if(n.includes('kia'))return'Kia Finance America';
+  if(n.includes('toyota')||n.includes('lexus'))return'Toyota Financial Services';
+  if(n.includes('ford')||n.includes('lincoln'))return'Ford Motor Credit';
+  if(n.includes('chevy')||n.includes('chevrolet')||n.includes('gmc')||n.includes('buick')||n.includes('cadillac'))return'GM Financial';
+  if(n.includes('honda')||n.includes('acura'))return'Honda Financial Services';
+  if(n.includes('hyundai'))return'Hyundai Motor Finance';
+  if(n.includes('genesis'))return'Genesis Finance';
+  if(n.includes('nissan')||n.includes('infiniti'))return'Nissan Motor Acceptance';
+  if(n.includes('mazda'))return'Mazda Financial Services';
+  if(n.includes('subaru'))return'Subaru Motors Finance';
+  if(n.includes('volkswagen')||n.includes('vw'))return'Volkswagen Finance';
+  if(n.includes('audi'))return'Audi Financial Services';
+  if(n.includes('bmw'))return'BMW Financial Services';
+  if(n.includes('mercedes'))return'Mercedes-Benz Financial';
+  if(n.includes('volvo'))return'Volvo Financial Services';
+  if(n.includes('ram')||n.includes('dodge')||n.includes('chrysler')||n.includes('jeep'))return'Stellantis Financial Services';
+  return'Manufacturer Financing';
+}
+
+// ─── RENDER REBATE CHECKBOXES ─────────────────────────────────────────────────
+function renderRebateChecks(rebates,vehicleName){
+  const mfr=detectMfrFinance(vehicleName);
+  mfrFinanceName=mfr;
+  const container=document.getElementById('rebateChecks');
+  if(!rebates||rebates.length===0){container.innerHTML='<div style="font-size:11px;color:var(--text3);font-family:DM Mono,monospace;padding:8px;">No rebates extracted — add manually below or enter URL above.</div>';return;}
+  detectedRebates=rebates;
+  container.innerHTML=rebates.map((r,i)=>{
+    // Detect mfr financing rebate and rename
+    const isFinance=/(kfa|kia finance|toyota financial|ford motor credit|gm financial|manufacturer financ|finance bonus|financing bonus|low apr|apr bonus)/i.test(r.name);
+    const displayName=isFinance?`${mfr} Bonus Cash`:r.name;
+    const qualify=r.qualify||getDefaultQualify(r.name,mfr);
+    const stackable=r.stackable!==false;
+    return`<div class="rebate-check-row" id="rcrow_${i}" onclick="toggleRebate(${i})">
+      <input type="checkbox" id="rc_${i}" ${r.defaultChecked?'checked':''} onclick="event.stopPropagation();toggleRebate(${i})">
+      <div class="rcr-body">
+        <div class="rcr-name">${displayName}</div>
+        <div class="rcr-qualify">${qualify}</div>
+        <div class="rcr-stack">${stackable?'<span style="color:var(--accent);font-size:9px;font-family:DM Mono,monospace;">✓ Stackable with other rebates</span>':'<span style="color:var(--orange);font-size:9px;font-family:DM Mono,monospace;">⚠ May not stack — verify with dealer</span>'}</div>
+      </div>
+      <div class="rcr-amt">-${fmt(r.amount)}</div>
+    </div>`}).join('');
+}
+function getDefaultQualify(name,mfr){
+  const n=name.toLowerCase();
+  if(/military|veteran/i.test(n))return'Requires active duty, veteran, or immediate family status. Must provide documentation.';
+  if(/graduate|college/i.test(n))return'Requires college graduation within the past 2 years. Must provide diploma or transcript.';
+  if(/loyalty/i.test(n))return`Must currently own or lease the same brand vehicle. May need to show prior title or registration.`;
+  if(/conquest/i.test(n))return'Must currently own a competitor brand vehicle. Proof of current registration required.';
+  if(/finance|kfa|apr/i.test(n))return`Requires financing through ${mfr}. Cannot combine with special low-APR financing in most cases.`;
+  if(/cash|customer/i.test(n))return'Available to all retail buyers. No special eligibility requirements.';
+  if(/dealer|bonus/i.test(n))return'Dealer-applied incentive. Confirm with finance office that this applies to your deal.';
+  return'Verify eligibility requirements with the dealer finance office before counting this rebate.';
+}
+function toggleRebate(i){
+  const cb=document.getElementById('rc_'+i),row=document.getElementById('rcrow_'+i);
+  cb.checked=!cb.checked;row.classList.toggle('checked',cb.checked);
+}
+function getCheckedRebates(){
+  const items=[];
+  document.querySelectorAll('#rebateChecks .rebate-check-row').forEach((row,i)=>{
+    const cb=document.getElementById('rc_'+i);
+    if(cb&&cb.checked&&detectedRebates[i]){
+      const r=detectedRebates[i];
+      const isFinance=/(kfa|kia finance|toyota financial|ford motor credit|gm financial|manufacturer financ|finance bonus|financing bonus|low apr|apr bonus)/i.test(r.name);
+      items.push({name:isFinance?`${mfrFinanceName} Bonus Cash`:r.name,amount:r.amount});
+    }
+  });
+  return items;
+}
+
+// ─── REBATES (manual list) ────────────────────────────────────────────────────
+function addRebate(name='',amount=0){
+  const row=document.createElement('div');row.className='rrow';
+  row.innerHTML=`<input type="text" placeholder="Rebate name" style="font-size:12px;" value="${name}"><div class="ip ramt-w"><span class="px">$</span><input type="number" placeholder="0" min="0" value="${amount}"></div><button class="rdel" onclick="removeRebate(this)">×</button>`;
+  document.getElementById('rlist').appendChild(row);
+}
+function removeRebate(btn){
+  const rows=document.querySelectorAll('#rlist .rrow');
+  if(rows.length<=1){const inp=btn.closest('.rrow').querySelectorAll('input');inp[0].value='';inp[1].value=0;return;}
+  btn.closest('.rrow').remove();
+}
+function getManualRebates(){
+  const items=[];
+  document.querySelectorAll('#rlist .rrow').forEach(row=>{
+    const nm=row.querySelector('input[type=text]')?.value?.trim()||'Rebate';
+    const am=+(row.querySelector('input[type=number]')?.value||0);
+    if(am>0)items.push({name:nm,amount:am});
+  });
+  return items;
+}
+
+// ─── CORS PROXY FETCH ────────────────────────────────────────────────────────
+async function fetchRawPage(url){
+  const proxies=[`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,`https://corsproxy.io/?${encodeURIComponent(url)}`];
+  for(const proxy of proxies){
+    try{
+      const r=await fetch(proxy,{signal:AbortSignal.timeout(10000)});if(!r.ok)continue;
+      const j=await r.json().catch(()=>null);
+      const html=j?.contents||j?.body||'';
+      if(html&&html.length>500)return html;
+    }catch(e){continue;}
+  }
+  return null;
+}
+function htmlToText(html){
+  let c=html.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ').replace(/&#\d+;/g,' ').replace(/\s{3,}/g,'  ').trim();
+  const prices=[];const re=/\$\s*[\d,]+(\.\d{2})?/g;let m;
+  while((m=re.exec(c))!==null){const s=Math.max(0,m.index-90),e=Math.min(c.length,m.index+90);prices.push(c.slice(s,e).replace(/\s+/g,' ').trim());}
+  return{text:c.slice(0,9000),prices:[...new Set(prices)].slice(0,50).join('\n')};
+}
+
+// ─── ROBUST JSON EXTRACTOR ────────────────────────────────────────────────────
+// Pulls the first valid JSON object from any string, tolerating markdown fences,
+// preamble text, and mixed tool-use / text content blocks.
+function extractJSON(str) {
+  if (!str) return null;
+  // Strip markdown code fences
+  str = str.replace(/```json\s*/gi, '').replace(/```\s*/g, '');
+  // Find the outermost { ... } — greedy match from first { to last }
+  const start = str.indexOf('{');
+  const end   = str.lastIndexOf('}');
+  if (start === -1 || end === -1 || end <= start) return null;
+  try { return JSON.parse(str.slice(start, end + 1)); }
+  catch(e) {
+    // Try walking inward if outer parse fails (truncated JSON)
+    try { return JSON.parse(str.slice(start).replace(/,\s*([}\]])/g, '$1')); }
+    catch(e2) { return null; }
+  }
+}
+
+// Pull all text from an API response regardless of tool-use blocks
+function allText(apiResponse) {
+  if (!apiResponse?.content) return '';
+  return apiResponse.content
+    .filter(b => b.type === 'text')
+    .map(b => b.text || '')
+    .join('\n');
+}
+
+// ─── MULTI-TURN TOOL COMPLETION ───────────────────────────────────────────────
+// When a response uses tools, the API stops and we must continue the conversation
+// by sending tool results back. This resolves the full text after tool use.
+async function resolveWithTools(apiBody) {
+  let response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(apiBody)
+  });
+  let data = await response.json();
+
+  // Handle up to 5 tool-use rounds
+  let rounds = 0;
+  while (data.stop_reason === 'tool_use' && rounds < 5) {
+    rounds++;
+    const toolUseBlocks = data.content.filter(b => b.type === 'tool_use');
+    if (!toolUseBlocks.length) break;
+
+    // Build tool results
+    const toolResults = toolUseBlocks.map(b => ({
+      type: 'tool_result',
+      tool_use_id: b.id,
+      content: b.type === 'tool_use' ? (b.output || b.content || '') : ''
+    }));
+
+    // Continue conversation with tool results
+    const messages = [
+      ...apiBody.messages,
+      { role: 'assistant', content: data.content },
+      { role: 'user',      content: toolResults }
+    ];
+
+    response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...apiBody, messages })
+    });
+    data = await response.json();
+  }
+  return data;
+}
+
+// ─── URL FETCH + VIN CROSS-REF ────────────────────────────────────────────────
+async function doFetch(){
+  const url=document.getElementById('dealerUrl').value.trim();
+  if(!url.startsWith('http')){alert('Enter a valid URL starting with https://');return;}
+  const btn=document.getElementById('fetchBtn'),bar=document.getElementById('fbar'),msg=document.getElementById('fmsg');
+  btn.disabled=true;bar.className='fbar vis loading';document.getElementById('fspinner').style.display='block';
+  msg.textContent='Fetching page...';document.getElementById('ebox').classList.remove('vis');
+  document.getElementById('vinPanel').classList.remove('vis');
+
+  try{
+    msg.textContent='Reading page HTML...';
+    const rawHtml = await fetchRawPage(url);
+    let pageCtx = '';
+    if (rawHtml) {
+      const { text, prices } = htmlToText(rawHtml);
+      // Keep context tight — too much text causes rambling responses
+      pageCtx = `PRICE CONTEXTS FROM PAGE:\n${prices}\n\nPAGE TEXT (first 4000 chars):\n${text.slice(0,4000)}`;
+      msg.textContent = 'Extracting data with AI...';
+    } else {
+      msg.textContent = 'Using AI web search...';
+    }
+
+    // Extract VIN from URL
+    const vinMatch = url.match(/[A-HJ-NPR-Z0-9]{17}/i);
+    const vin = vinMatch ? vinMatch[0].toUpperCase() : '';
+
+    // System prompt forces JSON-only output — most reliable way to prevent preamble
+    const systemPrompt = `You are a vehicle data extraction API. You MUST respond with ONLY a valid JSON object. No explanation, no markdown, no preamble, no backticks. Just raw JSON starting with { and ending with }.`;
+
+    const userPrompt = rawHtml
+      ? `Extract vehicle pricing from this dealer listing page: ${url}
+
+${pageCtx}
+
+Find and return these values. The SALE PRICE is the actual internet/selling price shown to buyers — it is usually LOWER than MSRP. Look for labels like "Sale Price", "Internet Price", "Best Price", "Our Price". MSRP is the manufacturer suggested retail price shown separately.
+
+Return this exact JSON structure with real values (use 0 for anything not found):
+{"vehicleName":"2026 Kia EV9 Light Long Range","vin":"${vin}","salePrice":48262,"msrp":60690,"dealerMarkup":0,"docFee":1195,"tagFee":250,"eTitleFee":75,"protectionPackage":{"name":"Protection Package","amount":0},"zipCode":"33781","color":"Glacial White Pearl","mileage":0,"dealerName":"Crown Kia","rebates":[{"name":"Customer Cash","amount":10000,"qualify":"Available to all retail buyers","defaultChecked":true,"stackable":true}],"otherFees":[],"found":true,"note":"prices extracted from page HTML"}`
+      : `Search for this vehicle listing and extract pricing data: ${url}
+VIN if known: ${vin}
+
+Find: sale/internet price, MSRP, dealer fees (doc fee, electronic title fee, tag fee), all rebates with qualification rules, vehicle details.
+
+Return this exact JSON structure (use 0 for anything not found):
+{"vehicleName":"","vin":"${vin}","salePrice":0,"msrp":0,"dealerMarkup":0,"docFee":0,"tagFee":0,"eTitleFee":0,"protectionPackage":{"name":"","amount":0},"zipCode":"","color":"","mileage":0,"dealerName":"","rebates":[],"otherFees":[],"found":true,"note":""}`;
+
+    const apiBody = {
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1500,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }]
+    };
+    if (!rawHtml) apiBody.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
+
+    const d1 = await resolveWithTools(apiBody);
+
+    // Robustly extract JSON from response regardless of format
+    const rawText = allText(d1);
+    extractedData = extractJSON(rawText);
+
+    if (!extractedData) {
+      // Last resort: if web search was used, try asking Claude to summarize what it found
+      if (!rawHtml) {
+        msg.textContent = 'Retrying extraction...';
+        const retry = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 800,
+            system: systemPrompt,
+            messages: [
+              { role: 'user', content: userPrompt },
+              { role: 'assistant', content: d1.content },
+              { role: 'user', content: 'Now output ONLY the JSON object with the data you found. Start your response with { and end with }. No other text.' }
+            ]
+          })
+        });
+        const retryData = await retry.json();
+        extractedData = extractJSON(allText(retryData));
+      }
+    }
+
+    if (!extractedData) throw new Error('Could not parse vehicle data from page');
+    // Mark as found if we got any real data
+    extractedData.found = true;
+
+    currentVehicleName=extractedData.vehicleName||'';
+
+    // Render chips
+    const chips=[];
+    if(extractedData.vehicleName)chips.push({l:'Vehicle',v:extractedData.vehicleName});
+    if(extractedData.salePrice)chips.push({l:'Sale Price',v:'$'+extractedData.salePrice.toLocaleString()});
+    if(extractedData.msrp&&extractedData.msrp!==extractedData.salePrice)chips.push({l:'MSRP',v:'$'+extractedData.msrp.toLocaleString()});
+    if(extractedData.dealerMarkup)chips.push({l:'ADM',v:'$'+extractedData.dealerMarkup.toLocaleString()});
+    if(extractedData.docFee)chips.push({l:'Doc Fee',v:'$'+extractedData.docFee.toLocaleString()});
+    if(extractedData.tagFee)chips.push({l:'Tag Fee',v:'$'+extractedData.tagFee.toLocaleString()});
+    if(extractedData.eTitleFee)chips.push({l:'e-Title',v:'$'+extractedData.eTitleFee.toLocaleString()});
+    if(extractedData.protectionPackage?.amount)chips.push({l:extractedData.protectionPackage.name||'Protection',v:'$'+extractedData.protectionPackage.amount.toLocaleString()});
+    if(extractedData.color)chips.push({l:'Color',v:extractedData.color});
+    if(extractedData.vin)chips.push({l:'VIN',v:extractedData.vin});
+    document.getElementById('echips').innerHTML=chips.map(c=>`<div class="echip"><span class="eclabel">${c.l}</span><span class="ecval">${c.v}</span></div>`).join('');
+    document.getElementById('ebox').classList.add('vis');
+
+    // Render rebate checkboxes
+    if(extractedData.rebates?.length>0){renderRebateChecks(extractedData.rebates,extractedData.vehicleName);}
+
+    bar.className='fbar vis ok';
+    document.getElementById('fspinner').style.display='none';
+    msg.textContent=`✓ Data extracted${extractedData.note?' ('+extractedData.note+')':''}`;
+
+    // VIN cross-reference
+    if(extractedData.vin||vin){
+      msg.textContent='Searching price databases...';
+      await doVinCrossRef(extractedData.vin||vin,extractedData.vehicleName||'',extractedData.salePrice||0,extractedData.dealerName||'',url);
+    }
+
+  }catch(err){
+    bar.className='fbar vis fail';document.getElementById('fspinner').style.display='none';
+    msg.textContent='✗ Could not auto-extract. Enter details manually below.';console.error(err);
+  }finally{btn.disabled=false;}
+}
+
+// ─── VIN CROSS-REFERENCE ─────────────────────────────────────────────────────
+async function doVinCrossRef(vin,vehicleName,dealerPrice,dealerName,dealerUrl){
+  document.getElementById('vinPanel').classList.add('vis');
+  const grid=document.getElementById('vinGrid');
+  const sites=['Edmunds','CarGurus','Carfax','AutoTrader','Cars.com'];
+  grid.innerHTML=sites.map(s=>`<div class="vin-card loading" id="vc_${s.replace('.','_')}"><div class="vc-site">${s}</div><div class="vc-price" style="color:var(--text3);font-size:14px;">Searching...</div></div>`).join('');
+
+  const prompt=`Search for VIN ${vin} (${vehicleName}) on Edmunds, CarGurus, Carfax, AutoTrader, and Cars.com.
+For each site find the listed price. Also check the dealer's reputation (name: "${dealerName}", URL: ${dealerUrl}).
+Return ONLY JSON:
+{
+  "vin":"${vin}",
+  "sites":[
+    {"site":"Edmunds","price":0,"found":true,"url":"https://...","note":""},
+    {"site":"CarGurus","price":0,"found":true,"url":"https://...","note":""},
+    {"site":"Carfax","price":0,"found":false,"url":"https://...","note":"Requires login"},
+    {"site":"AutoTrader","price":0,"found":true,"url":"https://...","note":""},
+    {"site":"Cars.com","price":0,"found":true,"url":"https://...","note":""}
+  ],
+  "avgMarketPrice":0,
+  "dealer":{"name":"${dealerName}","rating":4.2,"reviewCount":234,"sentiment":"Generally positive. Some reports of add-on fees.","flags":["Added protection package","Honored internet price"]}
+}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',max_tokens:1200,
+      system:'You are a vehicle market data API. Respond with ONLY a valid JSON object. No markdown, no explanation, no backticks. Raw JSON only.',
+      tools:[{type:'web_search_20250305',name:'web_search'}],
+      messages:[{role:'user',content:prompt}]
+    })});
+    const d=await res.json();
+    // Resolve any tool-use rounds
+    const resolved = await resolveWithTools({
+      model:'claude-sonnet-4-20250514',max_tokens:1200,
+      system:'You are a vehicle market data API. Respond with ONLY a valid JSON object. No markdown, no explanation, no backticks. Raw JSON only.',
+      tools:[{type:'web_search_20250305',name:'web_search'}],
+      messages:[{role:'user',content:prompt}]
+    });
+    const data = extractJSON(allText(resolved)) || extractJSON(allText(d));
+    if(!data)throw new Error();
+    const avg=data.avgMarketPrice||0;
+
+    grid.innerHTML=data.sites.map(s=>{
+      if(!s.found)return`<div class="vin-card notfound" id="vc_${s.site.replace('.','_')}"><div class="vc-site">${s.site}</div><div class="vc-price" style="color:var(--text3);font-size:14px;">Not Available</div><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:4px;">${s.note||'Could not access'}</div><a href="${s.url||`https://www.${s.site.toLowerCase().replace('.','')}.com/search?vin=${vin}`}" target="_blank" class="vc-link">Check Manually →</a></div>`;
+      const diff=dealerPrice>0?s.price-dealerPrice:0;
+      const pos=diff<-300?'below':diff>300?'above':'at';
+      const posLabel=pos==='below'?'Below Market':pos==='above'?'Above Market':'At Market';
+      return`<div class="vin-card ${pos}" id="vc_${s.site.replace('.','_')}"><div class="vc-site">${s.site}</div><div class="vc-price">${fmt(s.price)}</div><span class="vc-badge ${pos}">${posLabel}</span>${diff!==0?`<div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:3px;">${diff>0?'+':''}${fmt(Math.abs(diff))} vs dealer</div>`:''}${s.note?`<div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px;">${s.note}</div>`:''}<a href="${s.url}" target="_blank" class="vc-link">View Listing →</a></div>`;
+    }).join('');
+
+    // Market warning
+    const foundPrices=data.sites.filter(s=>s.found&&s.price>0);
+    const aboveCount=foundPrices.filter(s=>s.price<dealerPrice-300).length;
+    const mw=document.getElementById('marketWarning');
+    if(dealerPrice>0&&avg>0){
+      const diff=dealerPrice-avg;
+      if(diff>500){mw.innerHTML=`<div class="market-warning" style="background:var(--rdim);border:1px solid rgba(255,77,109,.3);color:var(--red);margin-top:8px;">⚠ Dealer is asking <strong>${fmt(diff)} above</strong> the average market price of ${fmt(avg)} across ${foundPrices.length} sources. Strong negotiating leverage — show them these comps.</div>`;}
+      else if(diff<-500){mw.innerHTML=`<div class="market-warning" style="background:rgba(0,229,160,.07);border:1px solid rgba(0,229,160,.25);color:var(--accent);margin-top:8px;">✓ Dealer is pricing <strong>${fmt(Math.abs(diff))} below</strong> average market price of ${fmt(avg)}. This appears to be a strong deal.</div>`;}
+      else{mw.innerHTML=`<div class="market-warning" style="background:var(--ydim);border:1px solid rgba(255,209,102,.25);color:var(--yellow);margin-top:8px;">~ Dealer price is within ${fmt(Math.abs(diff))} of the average market price of ${fmt(avg)}. Reasonably priced.</div>`;}
+    }
+
+    // Dealer rep
+    if(data.dealer?.name){
+      const dr=data.dealer;const stars='⭐'.repeat(Math.round(dr.rating||0));
+      document.getElementById('drContent').innerHTML=`<div class="dr-name">${dr.name}</div><div class="dr-stars">${stars} <span style="font-size:14px;">${(dr.rating||0).toFixed(1)}</span></div><div class="dr-meta">${dr.reviewCount||0} reviews</div><div style="font-size:12px;color:var(--text2);margin-top:6px;line-height:1.6;">${dr.sentiment||''}</div>${dr.flags?.length?`<div class="dr-flags">${dr.flags.map(f=>`<span class="tag info">${f}</span>`).join('')}</div>`:''}`;
+      document.getElementById('dealerRep').style.display='block';
+    }
+  }catch(e){grid.innerHTML=`<div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;padding:12px;">Could not retrieve cross-reference data. <a href="https://www.edmunds.com/vin/${vin}" target="_blank" style="color:var(--blue);">Search Edmunds manually →</a></div>`;}
+}
+
+function applyData(){
+  if(!extractedData)return;
+  const pulse=el=>{el.classList.remove('just-filled');void el.offsetWidth;el.classList.add('just-filled');};
+  if(extractedData.salePrice){const e=document.getElementById('salePrice');e.value=extractedData.salePrice;pulse(e);}
+  if(extractedData.dealerMarkup){const e=document.getElementById('dealerADM');e.value=extractedData.dealerMarkup;pulse(e);}
+  if(extractedData.docFee){const e=document.getElementById('docFee');e.value=extractedData.docFee;pulse(e);}
+  if(extractedData.tagFee){const e=document.getElementById('tagFee');e.value=extractedData.tagFee;pulse(e);}
+  if(extractedData.eTitleFee){const e=document.getElementById('eTitleFee');e.value=extractedData.eTitleFee;pulse(e);}
+  if(extractedData.zipCode){const e=document.getElementById('zipCode');e.value=extractedData.zipCode;pulse(e);}
+  if(extractedData.protectionPackage?.amount>0){document.getElementById('tProt').checked=true;document.getElementById('protWrap').style.display='block';document.getElementById('protAmt').value=extractedData.protectionPackage.amount;}
+  updateTradeNote();
+  document.querySelector('#results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ─── CALCULATE ────────────────────────────────────────────────────────────────
+function calculate(){
+  const sale=+document.getElementById('salePrice').value||0,adm=+document.getElementById('dealerADM').value||0;
+  const down=+document.getElementById('downPmt').value||0,tv=+document.getElementById('tradeVal').value||0,to=+document.getElementById('tradeOwed').value||0;
+  const doc=+document.getElementById('docFee').value||0,tag=+document.getElementById('tagFee').value||0,etitle=+document.getElementById('eTitleFee').value||0;
+  const score=+document.getElementById('cslider').value,tr=taxRate;
+  const protAmt=document.getElementById('tProt').checked?(+document.getElementById('protAmt').value||895):0;
+  const inspAmt=document.getElementById('tInsp').checked?399:0,nitroAmt=document.getElementById('tNitro').checked?249:0;
+  const vinAmt=document.getElementById('tVin').checked?199:0,gapAmt=document.getElementById('tGap').checked?695:0;
+  const warAmt=document.getElementById('tWar').checked?(+document.getElementById('warAmt').value||2500):0;
+  const tireAmt=document.getElementById('tTire').checked?349:0,keyAmt=document.getElementById('tKey').checked?299:0;
+  const custN=document.getElementById('custFeeName').value.trim(),custA=+document.getElementById('custFeeAmt').value||0;
+
+  const checkRebates=getCheckedRebates(),manualRebates=getManualRebates();
+  const allRebates=[...checkRebates,...manualRebates];
+  const totalRebates=allRebates.reduce((s,r)=>s+r.amount,0);
+
+  const eq=tv-to,negEq=eq<0?Math.abs(eq):0,posEq=eq>0?eq:0;
+  const taxBase=tradeCredit?Math.max(0,sale+adm-tv-totalRebates):Math.max(0,sale+adm-totalRebates);
+  const taxAmt=taxBase*tr,taxSavings=tradeCredit?tv*tr:0;
+  const addons=protAmt+inspAmt+nitroAmt+vinAmt+gapAmt+warAmt+tireAmt+keyAmt+custA;
+  const otd=sale+adm+doc+tag+etitle+taxAmt+addons-totalRebates+negEq;
+  const financed=Math.max(0,otd-down-posEq);
+
+  // OTD Hero
+  document.getElementById('otdNum').textContent=fmt(otd);
+  document.getElementById('otdStats').innerHTML=[
+    `<div><div class="os-label">Amount Financed</div><div class="os-val">${fmt(financed)}</div></div>`,
+    `<div><div class="os-label">Sales Tax (${(tr*100).toFixed(3)}%)</div><div class="os-val">${fmt(taxAmt)}</div></div>`,
+    totalRebates>0?`<div><div class="os-label">Rebates Applied</div><div class="os-val g">−${fmt(totalRebates)}</div></div>`:'',
+    taxSavings>0?`<div><div class="os-label">Trade Tax Credit</div><div class="os-val g">−${fmt(taxSavings)}</div></div>`:'',
+    down>0?`<div><div class="os-label">Down Payment</div><div class="os-val g">−${fmt(down)}</div></div>`:'',
+    posEq>0?`<div><div class="os-label">Trade Equity</div><div class="os-val g">−${fmt(posEq)}</div></div>`:'',
+    negEq>0?`<div><div class="os-label">Neg. Equity Added</div><div class="os-val r">+${fmt(negEq)}</div></div>`:'',
+  ].filter(Boolean).join('');
+
+  // Breakdown
+  const lines=[];
+  lines.push({n:'Vehicle Sale Price',tag:null,a:sale,h:'Negotiated or listed sale price.'});
+  if(adm>0)lines.push({n:'Dealer Market Adjustment (ADM)',tag:{c:'profit',l:'Dealer Markup'},a:adm,h:'Added above MSRP — negotiate down or walk away.'});
+  allRebates.forEach(r=>lines.push({n:r.name,tag:{c:'savings',l:'Rebate'},a:-r.amount,h:'Applied rebate — reduces taxable price.'}));
+  if(tradeCredit&&tv>0)lines.push({n:`Trade-In Tax Credit (${fmt(tv)} × ${(tr*100).toFixed(2)}%)`,tag:{c:'savings',l:'Tax Credit'},a:-taxSavings,h:tradeCreditNote||'Tax only on net price after trade-in.'});
+  lines.push({n:`Sales Tax — ${(tr*100).toFixed(3)}% on ${fmt(taxBase)}`,tag:{c:'req',l:'Required'},a:taxAmt,h:`Taxable base: ${fmt(sale+adm)}${tv>0&&tradeCredit?` − ${fmt(tv)} trade`:''} − ${fmt(totalRebates)} rebates = ${fmt(taxBase)}`});
+  if(doc>0)lines.push({n:'Documentation Fee',tag:{c:'profit',l:'Dealer Profit'},a:doc,h:'Paperwork prep. Often negotiable — ask if state-capped.'});
+  if(tag>0)lines.push({n:'Tag / Registration Fee',tag:{c:'req',l:'State Required'},a:tag,h:'State fee based on vehicle weight/MSRP/year.'});
+  if(etitle>0)lines.push({n:'Electronic Title (e-Title) Fee',tag:{c:'req',l:'State Fee'},a:etitle,h:'e-title filing. State cost ~$10–30; rest is dealer markup.'});
+  if(protAmt>0)lines.push({n:'Dealer Protection Package',tag:{c:'profit',l:'Add-On'},a:protAmt,h:'Paint/fabric/interior protection. Try to remove or negotiate price down.'});
+  if(inspAmt>0)lines.push({n:'Dealer Prep / Inspection Fee',tag:{c:'profit',l:'Questionable'},a:inspAmt,h:'Factory holdback covers prep — this is double-dipping.'});
+  if(nitroAmt>0)lines.push({n:'Nitrogen in Tires',tag:{c:'profit',l:'Markup'},a:nitroAmt,h:'Air is 78% nitrogen — marginal benefit.'});
+  if(vinAmt>0)lines.push({n:'VIN Etching',tag:{c:'profit',l:'Unnecessary'},a:vinAmt,h:'Comprehensive insurance covers theft.'});
+  if(gapAmt>0)lines.push({n:'GAP Insurance (dealer)',tag:{c:'profit',l:'Overpriced'},a:gapAmt,h:'Buy from your auto insurer for ~$20–50/yr instead.'});
+  if(warAmt>0)lines.push({n:'Extended Warranty (F&I)',tag:{c:'profit',l:'High Margin'},a:warAmt,h:'Priced 2–5× wholesale. Negotiate or buy third-party.'});
+  if(tireAmt>0)lines.push({n:'Tire & Wheel / Road Hazard',tag:{c:'profit',l:'Add-On'},a:tireAmt,h:'Check tire manufacturer warranty first.'});
+  if(keyAmt>0)lines.push({n:'Key Replacement / Theft',tag:{c:'profit',l:'Add-On'},a:keyAmt,h:'Insurer policy costs far less.'});
+  if(custA>0&&custN)lines.push({n:custN,tag:{c:'info',l:'Custom'},a:custA,h:'Custom fee entered manually.'});
+  if(negEq>0)lines.push({n:`Negative Equity Rolled In (owed ${fmt(to)} − worth ${fmt(tv)})`,tag:{c:'rolled',l:'Rolled Into Loan'},a:negEq,h:`${fmt(negEq)} added to OTD and new loan. Pay cash if possible.`});
+  if(down>0)lines.push({n:'Down Payment',tag:null,a:-down,h:'Cash at signing — reduces amount financed.'});
+  if(posEq>0)lines.push({n:'Trade-In Equity Applied',tag:{c:'savings',l:'Applied'},a:-posEq,h:'Positive trade equity reduces amount financed.'});
+
+  document.getElementById('blines').innerHTML=lines.map(l=>`<div class="bline"><div class="bl-left"><div class="bl-name">${l.n}${l.tag?`<span class="tag ${l.tag.c}">${l.tag.l}</span>`:''}</div><div class="bl-hint">${l.h}</div></div><div class="bl-amt ${l.a<0?'neg':l.tag?.c==='rolled'?'org':''}">${l.a<0?'−':l.tag?.c==='rolled'?'+':''}${fmt(l.a)}</div></div>`).join('');
+  document.getElementById('otdLine').textContent=fmt(otd);
+
+  // Unlisted fees
+  document.getElementById('unlistedGrid').innerHTML=[
+    {n:'Dealer Service Fee',r:'$300–$1,500',note:'Separate from doc fee — varies widely.'},
+    {n:'Advertising Fee',r:'$100–$500',note:'Regional ad costs passed to buyer.'},
+    {n:'Destination & Handling (new)',r:'$1,000–$1,800',note:'Manufacturer-set, non-negotiable on new cars.'},
+    {n:'Acquisition Fee (leases)',r:'$595–$1,200',note:'Manufacturer finance arm fee — leases only.'},
+    {n:'Lender/Bank Fee',r:'$100–$400',note:'Loan origination fee from the financing institution.'},
+    {n:'Emissions/Safety Inspection',r:'$15–$100',note:'Required in some states before registration.'},
+    {n:'Window Tint/Accessories',r:'Varies',note:'Pre-installed dealer accessories billed at signing.'},
+    {n:'Notary/Document Filing',r:'$25–$100',note:'Title transfer paperwork filing fee.'},
+  ].map(u=>`<div class="ui-item"><div class="ui-name">${u.n}</div><div class="ui-range">${u.r} — ${u.note}</div></div>`).join('');
+
+  // Payment grids
+  renderPayGrid(financed,score,'payGrid');
+  renderPayGrid(financed,score,'payGridResult');
+  document.getElementById('tierSubline').innerHTML=`<strong>${stCode||'National'} state-average APRs</strong> by tier for <strong>${selTerm}-month</strong> term. ${stateAPRNote||''} Your custom rate shown as 6th card.`;
+  document.getElementById('aprFoot').textContent=(stateAPRNote||'State-average APRs are AI estimates.')+' Actual rate set by your lender.';
+
+  // TCO init
+  tcoData={otd,financed,score,selTerm,vehicleName:currentVehicleName};
+  calcTCO();
+  document.getElementById('tcoPreview').textContent='';
+
+  // Dealer visit setup
+  document.getElementById('visitDealer').value=extractedData?.dealerName||'';
+
+  document.getElementById('results').classList.add('show');
+  setTimeout(()=>document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'}),80);
+}
+
+function renderPayGrid(financed,score,gridId){
+  const aprs=getAPRs(),myIdx=getTierIdx(score);
+  const cards=aprs.map((tier,idx)=>{
+    const apr=tier.adj[selTerm],pmt=pmtCalc(financed,apr,selTerm);
+    const tot=pmt*selTerm,int=Math.max(0,tot-financed),isMe=idx===myIdx;
+    return`<div class="pcard ${isMe?'me':''}"><div class="pc-tier">${tier.n}</div><div class="pc-range">${tier.rng}</div><div class="pc-apr" style="color:${tier.clr}">${apr}%</div><div class="pc-pmt">${fmtD(pmt)}</div><div class="pc-label">/ mo · ${selTerm} mo</div><div class="pc-int">+${fmt(int)} interest</div></div>`;
+  });
+  if(overrideAPR!==null){
+    const cpmt=pmtCalc(financed,overrideAPR,selTerm),ctot=cpmt*selTerm,cint=Math.max(0,ctot-financed);
+    const tierAPR=aprs[myIdx].adj[selTerm],diff=cpmt-pmtCalc(financed,tierAPR,selTerm);
+    cards.push(`<div class="pcard custom-card"><div class="pc-tier">Custom</div><div class="pc-range">${overrideAPR}% APR</div><div class="pc-apr" style="color:var(--yellow)">${overrideAPR}%</div><div class="pc-pmt">${fmtD(cpmt)}</div><div class="pc-label">/ mo · ${selTerm} mo</div><div class="pc-int">+${fmt(cint)} interest</div></div>`);
+    const cmpEl=document.getElementById(gridId==='payGridResult'?'rateCompareResult':'rateCompare');
+    if(cmpEl){
+      const cls=diff>0?'bad':diff<-1?'good':'ok';
+      cmpEl.className=`rate-compare ${cls}`;cmpEl.style.display='block';
+      cmpEl.textContent=diff>0?`Your rate (${overrideAPR}%) is ${(overrideAPR-aprs[myIdx].adj[selTerm]).toFixed(2)}% above state avg (${aprs[myIdx].adj[selTerm]}%) for your tier. That's +${fmtD(Math.abs(diff))}/mo and +${fmt(Math.abs(diff)*selTerm)} extra total interest. Shop lenders.`:`Your rate (${overrideAPR}%) is ${(aprs[myIdx].adj[selTerm]-overrideAPR).toFixed(2)}% below state avg (${aprs[myIdx].adj[selTerm]}%) — great rate! Saves ${fmtD(Math.abs(diff))}/mo vs state avg.`;
+    }
+  }
+  document.getElementById(gridId).innerHTML=cards.join('');
+}
+
+// ─── TCO ─────────────────────────────────────────────────────────────────────
+function toggleTCO(){document.getElementById('tcoToggle').classList.toggle('open');}
+function calcTCO(){
+  if(!tcoData.otd)return;
+  const miles=+document.getElementById('annualMiles').value||12000;
+  const fuel=document.getElementById('fuelType').value;
+  const mpg=+document.getElementById('mpgVal').value||30;
+  document.getElementById('mpgField').style.display=fuel==='ev'?'none':'block';
+  const gasPrice=3.50,kwhPrice=0.14,dslPrice=3.80;
+  let annualFuel=0;
+  if(fuel==='gas')annualFuel=(miles/mpg)*gasPrice;
+  else if(fuel==='diesel')annualFuel=(miles/mpg)*dslPrice;
+  else if(fuel==='hybrid')annualFuel=(miles/mpg)*gasPrice*0.65;
+  else if(fuel==='phev')annualFuel=(miles/mpg)*gasPrice*0.35+(miles*0.25)*kwhPrice;
+  else if(fuel==='ev')annualFuel=(miles/3.5)*kwhPrice;
+  const fuelTotal=annualFuel*5;
+
+  const vehName=(currentVehicleName||'').toLowerCase();
+  let annualIns=2000;
+  if(vehName.includes('truck')||vehName.includes('suv')||vehName.includes('ev9')||vehName.includes('tahoe'))annualIns=2400;
+  if(vehName.includes('ev')||vehName.includes('electric'))annualIns=2200;
+  if(stCode==='MI')annualIns=3200;else if(stCode==='FL')annualIns=2800;else if(stCode==='NY')annualIns=2600;
+  const insTotal=annualIns*5;
+
+  let annualMaint=fuel==='ev'?600:fuel==='hybrid'?700:900;
+  const maintTotal=annualMaint*5;
+
+  const salePrice=+document.getElementById('salePrice').value||tcoData.otd||35000;
+  let deprRate=0.45;
+  if(vehName.includes('toyota')||vehName.includes('honda')||vehName.includes('lexus'))deprRate=0.38;
+  if(vehName.includes('chevrolet')||vehName.includes('dodge'))deprRate=0.52;
+  const deprTotal=salePrice*deprRate;
+
+  const aprs=getAPRs();const myAPR=overrideAPR!==null?overrideAPR:aprs[getTierIdx(tcoData.score||720)].adj[tcoData.selTerm||48];
+  const pmt=pmtCalc(tcoData.financed||0,myAPR,tcoData.selTerm||48);
+  const intTotal=Math.max(0,pmt*(tcoData.selTerm||48)-tcoData.financed);
+
+  const total5yr=tcoData.otd+fuelTotal+insTotal+maintTotal+intTotal;
+  document.getElementById('tcoPreview').textContent=`Est. 5-year total: ${fmt(total5yr)}`;
+
+  document.getElementById('tcoGrid').innerHTML=[
+    {l:'Purchase Price (OTD)',v:fmt(tcoData.otd),c:'var(--text)'},
+    {l:'Total Interest Paid',v:fmt(intTotal),c:'var(--orange)'},
+    {l:'Fuel / Charging (5yr)',v:fmt(fuelTotal),c:'var(--yellow)'},
+    {l:'Insurance (5yr est.)',v:fmt(insTotal),c:'var(--blue)'},
+    {l:'Maintenance (5yr est.)',v:fmt(maintTotal),c:'var(--text2)'},
+    {l:'Depreciation (5yr est.)',v:fmt(deprTotal),c:'var(--red)'},
+  ].map(i=>`<div class="tco-item"><div class="tco-item-label">${i.l}</div><div class="tco-item-val" style="color:${i.c}">${i.v}</div></div>`).join('');
+  document.getElementById('tcoTotal').textContent=fmt(total5yr);
+}
+
+// ─── DEALER VISIT ─────────────────────────────────────────────────────────────
+const TACTICS=[
+  {id:'t1',label:'Dealer added protection package not listed online',bad:true},
+  {id:'t2',label:'Dealer refused to remove ADM/market adjustment',bad:true},
+  {id:'t3',label:'F&I office added products without asking first',bad:true},
+  {id:'t4',label:'Final price was higher than the internet/online price',bad:true},
+  {id:'t5',label:'Dealer claimed rebates shown online weren\'t available',bad:true},
+  {id:'t6',label:'Four-square / monthly payment focus tactics used',bad:true},
+  {id:'t7',label:'Dealer pushed extended warranty very aggressively',bad:true},
+  {id:'t8',label:'Dealer honored the internet price — clean deal',bad:false},
+  {id:'t9',label:'Dealer was transparent about all fees upfront',bad:false},
+  {id:'t10',label:'Rebates were applied correctly without hassle',bad:false},
+];
+
+document.getElementById('tacticGrid').innerHTML=TACTICS.map(t=>`<div class="tactic-row" onclick="document.getElementById('${t.id}').click()"><input type="checkbox" id="${t.id}"><span style="color:${t.bad?'var(--text2)':'var(--accent)'};">${t.bad?'⚠':'✓'} ${t.label}</span></div>`).join('');
+
+function openVisitPanel(){document.getElementById('visitPanel').classList.toggle('vis');}
+
+function submitVisit(){
+  const dealer=document.getElementById('visitDealer').value.trim()||'Unknown Dealer';
+  const city=document.getElementById('visitCity').value.trim()||'';
+  const notes=document.getElementById('visitNotes').value.trim();
+  const checked=TACTICS.filter(t=>document.getElementById(t.id).checked).map(t=>({label:t.label,bad:t.bad}));
+  if(checked.length===0&&!notes){alert('Please check at least one tactic or add a note.');return;}
+  const report={dealer,city,date:new Date().toLocaleDateString(),tactics:checked,notes,otd:document.getElementById('otdNum').textContent};
+  // Save to localStorage for community board
+  const existing=JSON.parse(localStorage.getItem('cc_reports')||'[]');
+  existing.unshift(report);
+  localStorage.setItem('cc_reports',JSON.stringify(existing.slice(0,50)));
+  renderCommunityFeed();
+  alert('Report submitted! It will appear in the Community Dealer Reports section.');
+  generateShare();
+}
+
+function generateShare(){
+  const dealer=document.getElementById('visitDealer').value.trim()||'this dealership';
+  const city=document.getElementById('visitCity').value.trim();
+  const notes=document.getElementById('visitNotes').value.trim();
+  const checked=TACTICS.filter(t=>document.getElementById(t.id).checked);
+  const bad=checked.filter(t=>t.bad),good=checked.filter(t=>!t.bad);
+  const otd=document.getElementById('otdNum').textContent;
+  let text=`🚗 CarClear Dealer Report — ${dealer}${city?', '+city:''}\n`;
+  text+=`Date: ${new Date().toLocaleDateString()}\n`;
+  text+=`Out-the-Door Price Calculated: ${otd}\n\n`;
+  if(bad.length)text+=`⚠ What they tried:\n${bad.map(t=>`  • ${t.label}`).join('\n')}\n\n`;
+  if(good.length)text+=`✅ Positive notes:\n${good.map(t=>`  • ${t.label}`).join('\n')}\n\n`;
+  if(notes)text+=`Additional notes: ${notes}\n\n`;
+  text+=`Calculated with CarClear — free car buying tool.`;
+  const box=document.getElementById('shareBox');
+  box.style.display='block';box.textContent=text;
+  const links=document.getElementById('shareLinks');
+  links.style.display='flex';
+  links.innerHTML=`<button class="btn btn-ghost" onclick="navigator.clipboard.writeText(document.getElementById('shareBox').textContent).then(()=>alert('Copied to clipboard!'))">📋 Copy Text</button><a href="https://www.google.com/search?q=${encodeURIComponent(dealer+' reviews')}" target="_blank" class="btn btn-ghost" style="text-decoration:none;">⭐ Leave Google Review</a><a href="https://www.dealerrater.com/" target="_blank" class="btn btn-ghost" style="text-decoration:none;">📝 Rate on DealerRater</a>`;
+}
+
+// ─── COMMUNITY FEED ───────────────────────────────────────────────────────────
+function renderCommunityFeed(){
+  const reports=JSON.parse(localStorage.getItem('cc_reports')||'[]');
+  const feed=document.getElementById('communityFeed');
+  if(reports.length===0){feed.innerHTML='<div class="cc-empty">No community reports yet. Be the first to submit a dealer experience above after your visit.</div>';return;}
+  feed.innerHTML=reports.map(r=>{
+    const bad=r.tactics?.filter(t=>t.bad)||[],good=r.tactics?.filter(t=>!t.bad)||[];
+    return`<div class="community-card"><div class="cc-header"><div><div class="cc-dealer">${r.dealer}${r.city?', '+r.city:''}</div><div class="cc-meta">${r.date} · OTD: ${r.otd||'N/A'}</div></div></div>${bad.length?`<div class="cc-tactics">${bad.map(t=>`<span class="tag profit">⚠ ${t.label.slice(0,40)}...</span>`).join('')}</div>`:''}${good.length?`<div class="cc-tactics">${good.map(t=>`<span class="tag savings">✓ ${t.label.slice(0,40)}...</span>`).join('')}</div>`:''}${r.notes?`<div style="font-size:11px;color:var(--text2);margin-top:6px;font-family:'DM Mono',monospace;line-height:1.5;">"${r.notes}"</div>`:''}</div>`;
+  }).join('');
+}
+renderCommunityFeed();
+
+// ─── ACCORDION ────────────────────────────────────────────────────────────────
+function buildAccordion(id,data){document.getElementById(id).innerHTML=data.map((f,i)=>`<div class="acc-item" id="${id}_${i}"><div class="acc-hdr" onclick="toggleAcc('${id}_${i}')"><div class="acc-tw"><div class="acc-title">${f.name}</div><div class="acc-range">${f.range}</div></div><div class="acc-tags">${f.tags.map(t=>`<span class="tag ${t.c}">${t.l}</span>`).join('')}</div><div class="acc-arrow">▾</div></div><div class="acc-body"><p class="acc-desc">${f.desc}</p><div class="tipbox">${f.tip}</div></div></div>`).join('');}
+function toggleAcc(id){document.getElementById(id).classList.toggle('open');}
+
+buildAccordion('feeGuide',[
+  {name:'Documentation (Doc) Fee',range:'$99–$999+',tags:[{c:'profit',l:'Dealer Profit'},{c:'neg',l:'Often Negotiable'}],desc:'Charged to prepare your paperwork. Florida caps at $999; many states have no limit. Largely profit.',tip:'<strong>Pro Tip:</strong> Always ask the doc fee before negotiating. Say: "Is your documentation fee negotiable?"'},
+  {name:'Dealer Protection Package',range:'$495–$2,500',tags:[{c:'profit',l:'High Markup'},{c:'neg',l:'Sometimes Removable'}],desc:'Bundled paint sealant, fabric guard, interior protection. Often called "mandatory" but sometimes negotiable or removable.',tip:'<strong>Script:</strong> "Please remove the protection package from my deal." If truly mandatory, reduce your vehicle price offer to compensate.'},
+  {name:'Dealer Market Adjustment (ADM)',range:'$500–$10,000+',tags:[{c:'profit',l:'Pure Markup'},{c:'neg',l:'Always Negotiate'}],desc:'Added above MSRP on high-demand vehicles. Pure additional profit with no cost basis.',tip:'<strong>Pro Tip:</strong> Walk away. Most models are available at MSRP elsewhere. Never pay ADM on used vehicles.'},
+  {name:'Tag / Registration (Weight-Based)',range:'$100–$600+',tags:[{c:'req',l:'State Required'}],desc:'Most states calculate registration based on vehicle weight, MSRP, or model year. Heavier vehicles pay significantly more.',tip:'<strong>Pro Tip:</strong> Ask for the exact state fee for your vehicle\'s weight class. Verify on your state DMV website.'},
+  {name:'Electronic Title Fee (e-Title)',range:'$50–$150',tags:[{c:'req',l:'State Fee'}],desc:'State cost is $10–30; dealers often significantly mark it up.',tip:'<strong>Pro Tip:</strong> Ask to see state cost vs. dealer markup. The markup portion is negotiable.'},
+  {name:'Trade-In Tax Credit',range:'Saves on Tax',tags:[{c:'savings',l:'Most States'}],desc:'Most states tax only the difference between the new car price and trade-in value — not the full price. Can save hundreds to thousands.',tip:'<strong>Verify:</strong> Confirm this appears correctly on the buyer\'s order before signing.'},
+  {name:'Negative Equity in a Trade',range:'Varies',tags:[{c:'rolled',l:'Added to Loan'}],desc:'When payoff exceeds trade value, the difference is negative equity — rolled into your new loan, increasing principal, payment, and interest paid.',tip:'<strong>Best practice:</strong> Pay negative equity in cash if possible. Rolling it in costs significantly more over the loan term.'},
+  {name:'Rebate Qualification Rules',range:'Varies',tags:[{c:'info',l:'Verify Eligibility'}],desc:'Not every rebate applies to every buyer. Military, loyalty, conquest, graduation, and manufacturer financing rebates all have specific eligibility requirements.',tip:'<strong>Pro Tip:</strong> Only check rebates you actually qualify for. Ask the F&I office to show you each rebate on the buyer\'s order and verify eligibility documentation required.'},
+  {name:'GAP Insurance (from Dealer)',range:'$400–$900',tags:[{c:'profit',l:'Overpriced'},{c:'neg',l:'Buy Elsewhere'}],desc:'Legitimate product — but dealers charge 3–5× what your auto insurer or credit union charges.',tip:'<strong>Pro Tip:</strong> Buy GAP from your own insurer for ~$20–50/year vs. $700+ at the dealer.'},
+  {name:'Extended Warranty (F&I)',range:'$1,500–$4,500',tags:[{c:'profit',l:'High Margin'},{c:'neg',l:'Negotiable'}],desc:'Priced 2–5× wholesale. May duplicate factory coverage. F&I managers earn commission on every product.',tip:'<strong>Pro Tip:</strong> Never decide in the F&I office. Get third-party quotes from Endurance or CARCHEX first.'},
+  {name:'Dealer Prep / Inspection Fee',range:'$200–$799',tags:[{c:'profit',l:'Double-Dipping'}],desc:'Factory holdback pays dealers 2–3% of MSRP to cover prep. Charging you separately is double-dipping.',tip:'<strong>Script:</strong> "The manufacturer holdback covers your prep costs. Please remove this fee."'},
+  {name:'VIN Etching',range:'$100–$300',tags:[{c:'profit',l:'Unnecessary'}],desc:'Comprehensive auto insurance covers theft. Minimal real-world deterrent effect.',tip:'<strong>Pro Tip:</strong> Decline. If already done, demand the fee removed.'},
+]);
+</script>
+</body>
+</html>
